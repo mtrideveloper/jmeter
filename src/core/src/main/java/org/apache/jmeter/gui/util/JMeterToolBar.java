@@ -35,6 +35,7 @@ import javax.swing.JToolBar;
 import org.apache.jmeter.gui.UndoHistory;
 import org.apache.jmeter.gui.action.ActionNames;
 import org.apache.jmeter.gui.action.ActionRouter;
+import org.apache.jmeter.mtri.gui.JMeterMtriSearchBar;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.util.LocaleChangeEvent;
 import org.apache.jmeter.util.LocaleChangeListener;
@@ -59,11 +60,12 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
 
     private static final Logger log = LoggerFactory.getLogger(JMeterToolBar.class);
 
-    private static final String TOOLBAR_ENTRY_SEP = ",";  //$NON-NLS-1$
+    private static final String TOOLBAR_ENTRY_SEP = ","; //$NON-NLS-1$
 
     private static final String TOOLBAR_PROP_NAME = "toolbar"; //$NON-NLS-1$
 
-    // protected fields: JMeterToolBar class can be use to create another toolbar (plugin, etc.)
+    // protected fields: JMeterToolBar class can be use to create another toolbar
+    // (plugin, etc.)
     protected static final String DEFAULT_TOOLBAR_PROPERTY_FILE = "org/apache/jmeter/images/toolbar/icons-toolbar.properties"; //$NON-NLS-1$
 
     protected static final String USER_DEFINED_TOOLBAR_PROPERTY_FILE = "jmeter.toolbar.icons"; //$NON-NLS-1$
@@ -78,7 +80,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
      * Create the default JMeter toolbar
      *
      * @param visible
-     *            Flag whether toolbar should be visible
+     *                Flag whether toolbar should be visible
      * @return the newly created {@link JMeterToolBar}
      */
     public static JMeterToolBar createToolbar(boolean visible) {
@@ -109,6 +111,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
 
     /**
      * Setup toolbar content
+     * 
      * @param toolBar {@link JMeterToolBar}
      */
     private static void setupToolbarContent(JMeterToolBar toolBar) {
@@ -119,9 +122,9 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
                     toolBar.addSeparator();
                 } else {
                     try {
-                        if(ActionNames.UNDO.equalsIgnoreCase(iconToolbarBean.getActionName())
-                                        || ActionNames.REDO.equalsIgnoreCase(iconToolbarBean.getActionName())) {
-                            if(UndoHistory.isEnabled()) {
+                        if (ActionNames.UNDO.equalsIgnoreCase(iconToolbarBean.getActionName())
+                                || ActionNames.REDO.equalsIgnoreCase(iconToolbarBean.getActionName())) {
+                            if (UndoHistory.isEnabled()) {
                                 toolBar.add(makeButtonItemRes(iconToolbarBean));
                             }
                         } else {
@@ -136,11 +139,17 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
             }
             toolBar.initButtonsState();
         }
+        //#region Added by MTRI
+        JMeterMtriSearchBar searchBar = new JMeterMtriSearchBar();
+        searchBar.addToToolbar(toolBar);
+        //#endregion
     }
 
     /**
      * Generate a button component from icon bean
-     * @param iconBean contains I18N key, ActionNames, icon path, optional icon path pressed
+     * 
+     * @param iconBean contains I18N key, ActionNames, icon path, optional icon path
+     *                 pressed
      * @return a button for toolbar
      */
     private static JButton makeButtonItemRes(IconToolbarBean iconBean) throws Exception {
@@ -167,6 +176,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
 
     /**
      * Parse icon set file.
+     * 
      * @return List of icons/action definition
      */
     private static List<IconToolbarBean> getIconMappings() {
@@ -181,7 +191,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
         }
         Properties p;
         String userProp = JMeterUtils.getProperty(USER_DEFINED_TOOLBAR_PROPERTY_FILE);
-        if (userProp != null){
+        if (userProp != null) {
             p = JMeterUtils.loadProperties(userProp, defaultProps);
         } else {
             p = defaultProps;
@@ -198,8 +208,9 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
             return null;
         }
 
+        // [new,templates,open,save,|,undo,redo,cut,copy,paste,|,expand,collapse,toggle,|,test_start,test_start_notimers,test_stop,test_shutdown,|,test_clear,test_clear_all,|,search,search_reset,|,function_helper,help]
         String[] oList = order.split(TOOLBAR_ENTRY_SEP);
-
+        // chọn size icon
         String iconSize = JMeterUtils.getPropDefault(TOOLBAR_ICON_SIZE, DEFAULT_TOOLBAR_ICON_SIZE);
 
         List<IconToolbarBean> listIcons = new ArrayList<>();
@@ -272,7 +283,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
      * Change state of buttons on local test
      *
      * @param started
-     *            Flag whether local test is started
+     *                Flag whether local test is started
      */
     public void setLocalTestStarted(boolean started) {
         Map<String, Boolean> buttonStates = new HashMap<>(3);
@@ -287,7 +298,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
      * Change state of buttons on remote test
      *
      * @param started
-     *            Flag whether the test is started
+     *                Flag whether the test is started
      */
     public void setRemoteTestStarted(boolean started) {
         Map<String, Boolean> buttonStates = new HashMap<>(3);
@@ -301,11 +312,11 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
      * Change state of buttons after undo or redo
      *
      * @param canUndo
-     *            Flag whether the button corresponding to
-     *            {@link ActionNames#UNDO} should be enabled
+     *                Flag whether the button corresponding to
+     *                {@link ActionNames#UNDO} should be enabled
      * @param canRedo
-     *            Flag whether the button corresponding to
-     *            {@link ActionNames#REDO} should be enabled
+     *                Flag whether the button corresponding to
+     *                {@link ActionNames#REDO} should be enabled
      */
     public void updateUndoRedoIcons(boolean canUndo, boolean canRedo) {
         Map<String, Boolean> buttonStates = new HashMap<>(2);
@@ -318,7 +329,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
      * Set buttons to a given state
      *
      * @param buttonStates
-     *            {@link Map} of button names and their states
+     *                     {@link Map} of button names and their states
      */
     private void updateButtons(Map<String, Boolean> buttonStates) {
         // Swing APIs (e.g. Button.setEnabled) must be called on a Swing dispatch thread

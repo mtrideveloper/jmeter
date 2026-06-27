@@ -93,19 +93,19 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      */
     private final boolean standalone;
 
-    /** Button to move an argument up*/
+    /** Button to move an argument up */
     private JButton up;
 
-    /** Button to move an argument down*/
+    /** Button to move an argument down */
     private JButton down;
 
-    /** Button to show the detail of an argument*/
+    /** Button to show the detail of an argument */
     private JButton showDetail;
 
     /** Enable Up and Down buttons */
     private final boolean enableUpDown;
 
-    /** Disable buttons :Detail, Add, Add from Clipboard, Delete, Up and Down*/
+    /** Disable buttons :Detail, Add, Add from Clipboard, Delete, Up and Down */
     private final boolean disableButtons;
 
     private final Function<String[], ? extends Argument> argCreator;
@@ -144,7 +144,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * Create a new ArgumentsPanel as a standalone component.
      */
     public ArgumentsPanel() {
-        this(JMeterUtils.getResString("user_defined_variables"),null, true, true);// $NON-NLS-1$
+        this(JMeterUtils.getResString("user_defined_variables"), null, true, true);// $NON-NLS-1$
     }
 
     /**
@@ -152,7 +152,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * title.
      *
      * @param label
-     *            the title for the component.
+     *              the title for the component.
      */
     public ArgumentsPanel(String label) {
         this(label, null, true, false);
@@ -163,7 +163,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * title.
      *
      * @param label
-     *            the title for the component.
+     *                     the title for the component.
      * @param enableUpDown Add up/down buttons
      */
     public ArgumentsPanel(String label, boolean enableUpDown) {
@@ -175,7 +175,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * title.
      *
      * @param disableButtons Remove Edit all buttons
-     * @param label the title for the component.
+     * @param label          the title for the component.
      */
     public ArgumentsPanel(boolean disableButtons, String label) {
         this(label, null, false, false, null, disableButtons, null);
@@ -183,8 +183,9 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /**
      * Create a new ArgumentsPanel with a border and color background
+     * 
      * @param label text for label
-     * @param bkg background colour
+     * @param bkg   background colour
      */
     public ArgumentsPanel(String label, Color bkg) {
         this(label, bkg, true, false);
@@ -192,10 +193,11 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /**
      * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
+     * 
+     * @param label        text for label
+     * @param bkg          background colour
      * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
+     * @param standalone   is standalone
      */
     public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone) {
         this(label, bkg, enableUpDown, standalone, null, false, null);
@@ -203,11 +205,12 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /**
      * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
+     * 
+     * @param label        text for label
+     * @param bkg          background colour
      * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
-     * @param model the table model to use
+     * @param standalone   is standalone
+     * @param model        the table model to use
      */
     public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model) {
         this(label, bkg, enableUpDown, standalone, model, null);
@@ -215,43 +218,53 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /**
      * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
+     * 
+     * @param label        text for label
+     * @param bkg          background colour
      * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
-     * @param model the table model to use
-     * @param argCreator function to create {@link Argument}s from Strings taken from clipboard
+     * @param standalone   is standalone
+     * @param model        the table model to use
+     * @param argCreator   function to create {@link Argument}s from Strings taken
+     *                     from clipboard
      */
-    public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model, Function<String[], Argument> argCreator) {
+    public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model,
+            Function<String[], Argument> argCreator) {
         this(label, bkg, enableUpDown, standalone, model, false, argCreator);
     }
 
     /**
      * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
-     * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
-     * @param model the table model to use
+     * 
+     * @param label          text for label
+     * @param bkg            background colour
+     * @param enableUpDown   Add up/down buttons
+     * @param standalone     is standalone
+     * @param model          the table model to use
      * @param disableButtons Remove all buttons
      */
-    public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model, boolean disableButtons) {
+    public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model,
+            boolean disableButtons) {
         this(label, bkg, enableUpDown, standalone, model, disableButtons, null);
     }
 
     /**
      * Create a new ArgumentsPanel with a border and color background
-     * @param label text for label
-     * @param bkg background colour
-     * @param enableUpDown Add up/down buttons
-     * @param standalone is standalone
-     * @param model the table model to use
+     * 
+     * @param label          text for label
+     * @param bkg            background colour
+     * @param enableUpDown   Add up/down buttons
+     * @param standalone     is standalone
+     * @param model          the table model to use
      * @param disableButtons Remove all buttons
-     * @param argCreator function to create {@link Argument}s from Strings taken from clipboard
+     * @param argCreator     function to create {@link Argument}s from Strings taken
+     *                       from clipboard
      */
     public ArgumentsPanel(String label, Color bkg, boolean enableUpDown, boolean standalone, ObjectTableModel model,
             boolean disableButtons, Function<String[], ? extends Argument> argCreator) {
         tableLabel = new JLabel(label);
+        //#region Added by MTRI
+        tableLabel.setToolTipText(JMeterUtils.getResString("user_defined_variables_tooltip")); // $NON-NLS-1$
+        //#endregion  
         this.enableUpDown = enableUpDown;
         this.disableButtons = disableButtons;
         this.background = bkg;
@@ -376,12 +389,11 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
                 delete.setEnabled(true);
                 showDetail.setEnabled(true);
             }
-            if(enableUpDown) {
-                if(tableModel.getRowCount()>1) {
+            if (enableUpDown) {
+                if (tableModel.getRowCount() > 1) {
                     up.setEnabled(true);
                     down.setEnabled(true);
-                }
-                else {
+                } else {
                     up.setEnabled(false);
                     down.setEnabled(false);
                 }
@@ -391,7 +403,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
     }
 
     @Override
-    public void clearGui(){
+    public void clearGui() {
         super.clearGui();
         clear();
     }
@@ -431,12 +443,11 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     }
 
-
     /**
      * Move a row down
      */
     private void moveDown() {
-        //get the selected rows before stopping editing
+        // get the selected rows before stopping editing
         // or the selected rows will be unselected
         int[] rowsSelected = table.getSelectedRows();
         GuiUtils.stopTableEditing(table);
@@ -451,17 +462,17 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
                 table.addRowSelectionInterval(rowSelected + 1, rowSelected + 1);
             }
 
-            scrollToRowIfNotVisible(rowsSelected[0]+1);
+            scrollToRowIfNotVisible(rowsSelected[0] + 1);
         }
     }
 
-
     /**
      * ensure that a row is visible in the viewport
+     * 
      * @param rowIndex row index
      */
     private void scrollToRowIfNotVisible(int rowIndex) {
-        if(table.getParent() instanceof JViewport) {
+        if (table.getParent() instanceof JViewport) {
             Rectangle visibleRect = table.getVisibleRect();
             final int cellIndex = 0;
             Rectangle cellRect = table.getCellRect(rowIndex, cellIndex, false);
@@ -470,7 +481,8 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
             } else {
                 Rectangle rect2 = table.getCellRect(rowIndex + getNumberOfVisibleRows(table), cellIndex, true);
                 int width = rect2.y - cellRect.y;
-                table.scrollRectToVisible(new Rectangle(cellRect.x, cellRect.y, cellRect.width, cellRect.height + width));
+                table.scrollRectToVisible(
+                        new Rectangle(cellRect.x, cellRect.y, cellRect.width, cellRect.height + width));
             }
         }
     }
@@ -487,10 +499,10 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
     }
 
     /**
-     *  Move a row down
+     * Move a row down
      */
     private void moveUp() {
-        //get the selected rows before stopping editing
+        // get the selected rows before stopping editing
         // or the selected rows will be unselected
         int[] rowsSelected = table.getSelectedRows();
         GuiUtils.stopTableEditing(table);
@@ -505,7 +517,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
                 table.addRowSelectionInterval(rowSelected - 1, rowSelected - 1);
             }
 
-            scrollToRowIfNotVisible(rowsSelected[0]-1);
+            scrollToRowIfNotVisible(rowsSelected[0] - 1);
         }
     }
 
@@ -513,7 +525,7 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      * Show Row Detail
      */
     private void showDetail() {
-        //get the selected rows before stopping editing
+        // get the selected rows before stopping editing
         // or the selected will be unselected
         int[] rowsSelected = table.getSelectedRows();
         GuiUtils.stopTableEditing(table);
@@ -572,15 +584,16 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /**
      * Add values from the clipboard
+     * 
      * @param lineDelimiter Delimiter string to split clipboard into lines
-     * @param argDelimiter Delimiter string to split line into key-value pair
+     * @param argDelimiter  Delimiter string to split line into key-value pair
      */
     protected void addFromClipboard(String lineDelimiter, String argDelimiter) {
         GuiUtils.stopTableEditing(table);
         int rowCount = table.getRowCount();
         try {
             String clipboardContent = GuiUtils.getPastedText();
-            if(clipboardContent == null) {
+            if (clipboardContent == null) {
                 return;
             }
             String[] clipboardLines = clipboardContent.split(lineDelimiter);
@@ -606,7 +619,8 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
         } catch (UnsupportedFlavorException ufe) {
             JOptionPane.showMessageDialog(this,
                     "Could not add retrieve " + DataFlavor.stringFlavor.getHumanPresentableName()
-                            + " from clipboard" + ufe.getLocalizedMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                            + " from clipboard" + ufe.getLocalizedMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -652,36 +666,37 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
      */
     protected void initializeTableModel() {
         if (tableModel == null) {
-            if(standalone) {
-                tableModel = new ObjectTableModel(new String[] { COLUMN_RESOURCE_NAMES_0, COLUMN_RESOURCE_NAMES_1, COLUMN_RESOURCE_NAMES_2 },
-                    Argument.class,
-                    new Functor[] {
-                    new Functor("getName"), // $NON-NLS-1$
-                    new Functor("getValue"),  // $NON-NLS-1$
-                    new Functor("getDescription") },  // $NON-NLS-1$
-                    new Functor[] {
-                    new Functor("setName"), // $NON-NLS-1$
-                    new Functor("setValue"), // $NON-NLS-1$
-                    new Functor("setDescription") },  // $NON-NLS-1$
-                    new Class[] { String.class, String.class, String.class });
+            if (standalone) {
+                tableModel = new ObjectTableModel(
+                        new String[] { COLUMN_RESOURCE_NAMES_0, COLUMN_RESOURCE_NAMES_1, COLUMN_RESOURCE_NAMES_2 },
+                        Argument.class,
+                        new Functor[] {
+                                new Functor("getName"), // $NON-NLS-1$
+                                new Functor("getValue"), // $NON-NLS-1$
+                                new Functor("getDescription") }, // $NON-NLS-1$
+                        new Functor[] {
+                                new Functor("setName"), // $NON-NLS-1$
+                                new Functor("setValue"), // $NON-NLS-1$
+                                new Functor("setDescription") }, // $NON-NLS-1$
+                        new Class[] { String.class, String.class, String.class });
             } else {
                 tableModel = new ObjectTableModel(new String[] { COLUMN_RESOURCE_NAMES_0, COLUMN_RESOURCE_NAMES_1 },
-                    Argument.class,
-                    new Functor[] {
-                    new Functor("getName"), // $NON-NLS-1$
-                    new Functor("getValue") },  // $NON-NLS-1$
-                    new Functor[] {
-                    new Functor("setName"), // $NON-NLS-1$
-                    new Functor("setValue") }, // $NON-NLS-1$
-                    new Class[] { String.class, String.class });
+                        Argument.class,
+                        new Functor[] {
+                                new Functor("getName"), // $NON-NLS-1$
+                                new Functor("getValue") }, // $NON-NLS-1$
+                        new Functor[] {
+                                new Functor("setName"), // $NON-NLS-1$
+                                new Functor("setValue") }, // $NON-NLS-1$
+                        new Class[] { String.class, String.class });
             }
         }
     }
 
-    public static boolean testFunctors(){
+    public static boolean testFunctors() {
         ArgumentsPanel instance = new ArgumentsPanel();
         instance.initializeTableModel();
-        return instance.tableModel.checkFunctors(null,instance.getClass());
+        return instance.tableModel.checkFunctors(null, instance.getClass());
     }
 
     /**
@@ -780,7 +795,8 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
     /**
      * Initialize the components and layout of this component.
      */
-    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
+    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or
+                          // final)
         JPanel p = this;
 
         if (standalone) {
@@ -811,7 +827,8 @@ public class ArgumentsPanel extends AbstractConfigGui implements ActionListener 
 
     /**
      * Clear border around "table with arguments".
-     * Extra border is not required when the panel is already surrounded by a border.
+     * Extra border is not required when the panel is already surrounded by a
+     * border.
      */
     public void clearBorderForMainPanel() {
         GuiUtils.emptyBorder(mainPanel);

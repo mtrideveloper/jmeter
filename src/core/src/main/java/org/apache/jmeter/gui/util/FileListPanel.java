@@ -105,7 +105,10 @@ public class FileListPanel extends JPanel implements ActionListener {
         this.setLayout(new BorderLayout(0, 5));
         setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
         JLabel jtitle = new JLabel(title);
-
+        //#region Added by MTRI
+        jtitle.setToolTipText(JMeterUtils.getResString("test_plan_classpath_browse_tooltip")); // $NON-NLS-1$
+        //#endregion
+        
         HorizontalPanel buttons = new HorizontalPanel();
         buttons.add(jtitle);
         buttons.add(browse);

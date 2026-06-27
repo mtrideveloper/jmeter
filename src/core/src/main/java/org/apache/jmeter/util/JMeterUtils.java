@@ -96,14 +96,16 @@ public class JMeterUtils implements UnitTestManager {
     private static final String JMETER_VARS_PREFIX = "__jm__";
     public static final String THREAD_GROUP_DISTRIBUTED_PREFIX_PROPERTY_NAME = "__jm.D_TG";
 
-    // Note: cannot use a static variable here, because that would be processed before the JMeter properties
+    // Note: cannot use a static variable here, because that would be processed
+    // before the JMeter properties
     // have been defined (Bug 52783)
     private static class LazyPatternCacheHolder {
         private LazyPatternCacheHolder() {
             super();
         }
+
         private static final PatternCacheLRU INSTANCE = new PatternCacheLRU(
-                getPropDefault("oro.patterncache.size",1000), // $NON-NLS-1$
+                getPropDefault("oro.patterncache.size", 1000), // $NON-NLS-1$
                 new Perl5Compiler());
     }
 
@@ -111,14 +113,14 @@ public class JMeterUtils implements UnitTestManager {
         private LazyJavaPatternCacheHolder() {
             super();
         }
-        private static final LoadingCache<Map.Entry<String, Integer>, java.util.regex.Pattern> INSTANCE =
-                Caffeine
-                        .newBuilder()
-                        .maximumSize(getPropDefault("jmeter.regex.patterncache.size", 1000))
-                        .build(key -> {
-                            //noinspection MagicConstant
-                            return java.util.regex.Pattern.compile(key.getKey(), key.getValue().intValue());
-                        });
+
+        private static final LoadingCache<Map.Entry<String, Integer>, java.util.regex.Pattern> INSTANCE = Caffeine
+                .newBuilder()
+                .maximumSize(getPropDefault("jmeter.regex.patterncache.size", 1000))
+                .build(key -> {
+                    // noinspection MagicConstant
+                    return java.util.regex.Pattern.compile(key.getKey(), key.getValue().intValue());
+                });
     }
 
     public static final String RES_KEY_PFX = "[res_key="; // $NON-NLS-1$
@@ -129,8 +131,7 @@ public class JMeterUtils implements UnitTestManager {
 
     private static volatile Properties appProperties;
 
-    private static final CopyOnWriteArrayList<LocaleChangeListener> localeChangeListeners =
-            new CopyOnWriteArrayList<>();
+    private static final CopyOnWriteArrayList<LocaleChangeListener> localeChangeListeners = new CopyOnWriteArrayList<>();
 
     private static volatile Locale locale;
 
@@ -151,6 +152,7 @@ public class JMeterUtils implements UnitTestManager {
 
     /**
      * Gets Perl5Matcher for this thread.
+     * 
      * @return the {@link Perl5Matcher} for this thread
      */
     public static Perl5Matcher getMatcher() {
@@ -168,7 +170,7 @@ public class JMeterUtils implements UnitTestManager {
      * [still used
      *
      * @param file
-     *            the file to load
+     *             the file to load
      * @return the Properties from the file
      * @see #getJMeterProperties()
      * @see #loadJMeterProperties(String)
@@ -182,6 +184,7 @@ public class JMeterUtils implements UnitTestManager {
 
     /**
      * Initialise JMeter logging
+     * 
      * @deprecated does not do anything anymore
      */
     @Deprecated
@@ -195,8 +198,8 @@ public class JMeterUtils implements UnitTestManager {
     public static void initLocale() {
         String loc = appProperties.getProperty("language"); // $NON-NLS-1$
         if (loc != null) {
-            String []parts = JOrphanUtils.split(loc,"_");// $NON-NLS-1$
-            if (parts.length==2) {
+            String[] parts = JOrphanUtils.split(loc, "_");// $NON-NLS-1$
+            if (parts.length == 2) {
                 setLocale(new Locale(parts[0], parts[1]));
             } else {
                 setLocale(new Locale(loc, "")); // $NON-NLS-1$
@@ -206,7 +209,6 @@ public class JMeterUtils implements UnitTestManager {
         }
     }
 
-
     /**
      * Load the JMeter properties file; if not found, then
      * default to "org/apache/jmeter/jmeter.properties" from the classpath
@@ -214,7 +216,8 @@ public class JMeterUtils implements UnitTestManager {
      * <p>
      * c.f. loadProperties
      *
-     * @param file Name of the file from which the JMeter properties should be loaded
+     * @param file Name of the file from which the JMeter properties should be
+     *             loaded
      */
     public static void loadJMeterProperties(String file) {
         Properties p = new Properties(System.getProperties());
@@ -222,7 +225,7 @@ public class JMeterUtils implements UnitTestManager {
             p.load(is);
         } catch (IOException e) {
             try (InputStream is = ClassLoader.getSystemResourceAsStream(
-                        "org/apache/jmeter/jmeter.properties")) { // $NON-NLS-1$
+                    "org/apache/jmeter/jmeter.properties")) { // $NON-NLS-1$
                 if (is == null) {
                     throw new RuntimeException("Could not read JMeter properties file:" + file);
                 }
@@ -239,7 +242,7 @@ public class JMeterUtils implements UnitTestManager {
      * in the classpath
      *
      * @param file
-     *            the file to load
+     *             the file to load
      * @return the Properties from the file, may be null (e.g. file not found)
      */
     public static Properties loadProperties(String file) {
@@ -251,9 +254,10 @@ public class JMeterUtils implements UnitTestManager {
      * in the classpath
      *
      * @param file
-     *            the file to load
+     *                     the file to load
      * @param defaultProps a set of default properties
-     * @return the Properties from the file; if it could not be processed, the defaultProps are returned.
+     * @return the Properties from the file; if it could not be processed, the
+     *         defaultProps are returned.
      */
     public static Properties loadProperties(String file, Properties defaultProps) {
         Properties p = new Properties(defaultProps);
@@ -298,21 +302,24 @@ public class JMeterUtils implements UnitTestManager {
      * @return compiled pattern
      *
      * @throws MalformedCachePatternException (Runtime)
-     * This should be caught for expressions that may vary (e.g. user input)
+     *                                        This should be caught for expressions
+     *                                        that may vary (e.g. user input)
      *
      */
     public static Pattern getPattern(String expression) throws MalformedCachePatternException {
         return getPattern(expression, Perl5Compiler.READ_ONLY_MASK);
     }
+
     /**
      * Get a compiled expression from the pattern cache.
      *
      * @param expression RE
-     * @param options e.g. {@link Perl5Compiler#READ_ONLY_MASK READ_ONLY_MASK}
+     * @param options    e.g. {@link Perl5Compiler#READ_ONLY_MASK READ_ONLY_MASK}
      * @return compiled pattern
      *
      * @throws MalformedCachePatternException (Runtime)
-     * This should be caught for expressions that may vary (e.g. user input)
+     *                                        This should be caught for expressions
+     *                                        that may vary (e.g. user input)
      *
      */
     public static Pattern getPattern(String expression, int options) throws MalformedCachePatternException {
@@ -326,15 +333,22 @@ public class JMeterUtils implements UnitTestManager {
     }
 
     /**
-     * Loads services implementing a given interface and scans JMeter search path for the implementations.
-     * This is a transition replacement for {@link ClassFinder}, and JMeter would migrate to {@link ServiceLoader}-only
+     * Loads services implementing a given interface and scans JMeter search path
+     * for the implementations.
+     * This is a transition replacement for {@link ClassFinder}, and JMeter would
+     * migrate to {@link ServiceLoader}-only
      * lookup in the future.
-     * <p>Note: it is not always safe to cache the result as {@code search_paths} property might change over time</p>
+     * <p>
+     * Note: it is not always safe to cache the result as {@code search_paths}
+     * property might change over time
+     * </p>
      *
-     * @param service interface that services should extend.
-     * @param serviceLoader ServiceLoader to fetch services.
-     * @param classLoader classLoader to use when searching for classes on the search path.
-     * @param exceptionHandler exception handler to use for services that fail to load.
+     * @param service          interface that services should extend.
+     * @param serviceLoader    ServiceLoader to fetch services.
+     * @param classLoader      classLoader to use when searching for classes on the
+     *                         search path.
+     * @param exceptionHandler exception handler to use for services that fail to
+     *                         load.
      * @return collection of services that load successfully
      * @param <S> type of service (class or interface)
      */
@@ -343,8 +357,7 @@ public class JMeterUtils implements UnitTestManager {
             @SuppressWarnings("BoundedWildcard") Class<S> service,
             ServiceLoader<S> serviceLoader,
             ClassLoader classLoader,
-            ServiceLoadExceptionHandler<? super S> exceptionHandler
-    ) {
+            ServiceLoadExceptionHandler<? super S> exceptionHandler) {
         Collection<S> services = ClassFinder.loadServices(service, serviceLoader, exceptionHandler);
 
         List<String> classesFromJars;
@@ -378,7 +391,7 @@ public class JMeterUtils implements UnitTestManager {
                 result.add(klass.getDeclaredConstructor().newInstance());
             } catch (Throwable e) {
                 if (e instanceof InvocationTargetException) {
-                    //noinspection AssignmentToCatchBlockParameter
+                    // noinspection AssignmentToCatchBlockParameter
                     e = e.getCause();
                 }
                 exceptionHandler.handle(service, className, e);
@@ -395,21 +408,25 @@ public class JMeterUtils implements UnitTestManager {
      *
      * @param superClass - single class to search for
      * @return List of Strings containing discovered class names.
-     * @throws IOException when the used {@link ClassFinder} throws one while searching for the class
-     * @deprecated use {@link #loadServicesAndScanJars(Class, ServiceLoader, ClassLoader, ServiceLoadExceptionHandler)} instead
+     * @throws IOException when the used {@link ClassFinder} throws one while
+     *                     searching for the class
+     * @deprecated use
+     *             {@link #loadServicesAndScanJars(Class, ServiceLoader, ClassLoader, ServiceLoadExceptionHandler)}
+     *             instead
      */
     @API(status = API.Status.DEPRECATED, since = "5.6")
     @Deprecated
     public static List<String> findClassesThatExtend(Class<?> superClass)
-        throws IOException {
-        return ClassFinder.findClassesThatExtend(getSearchPaths(), new Class[]{superClass}, false);
+            throws IOException {
+        return ClassFinder.findClassesThatExtend(getSearchPaths(), new Class[] { superClass }, false);
     }
 
     /**
      * Generate a list of paths to search.
      * The output array always starts with
      * JMETER_HOME/lib/ext
-     * and is followed by any paths obtained from the "search_paths" JMeter property.
+     * and is followed by any paths obtained from the "search_paths" JMeter
+     * property.
      *
      * @return array of path strings
      */
@@ -430,7 +447,7 @@ public class JMeterUtils implements UnitTestManager {
      * Provide random numbers
      *
      * @param r -
-     *            the upper bound (exclusive)
+     *          the upper bound (exclusive)
      * @return a random <code>int</code>
      */
     public static int getRandomInt(int r) {
@@ -464,7 +481,7 @@ public class JMeterUtils implements UnitTestManager {
                 def = null; // no need to reset Locale
             }
         }
-        if ("ignoreResources".equals(loc.toString())){ // $NON-NLS-1$
+        if ("ignoreResources".equals(loc.toString())) { // $NON-NLS-1$
             log.warn("Resource bundles will be ignored");
             ignoreResources = true;
             // Keep existing settings
@@ -540,7 +557,7 @@ public class JMeterUtils implements UnitTestManager {
      * If the resource is not found, a warning is logged
      *
      * @param key
-     *            the key in the resource file
+     *                     the key in the resource file
      * @param forcedLocale Force a particular locale
      * @return the resource string if the key is found; otherwise, return
      *         "[res_key="+key+"]"
@@ -557,9 +574,9 @@ public class JMeterUtils implements UnitTestManager {
      * If the resource is not found, a warning is logged
      *
      * @param key
-     *            the key in the resource file
+     *                     the key in the resource file
      * @param defaultValue -
-     *            the default value
+     *                     the default value
      *
      * @return the resource string if the key is found; otherwise, return the
      *         default
@@ -600,7 +617,7 @@ public class JMeterUtils implements UnitTestManager {
             if (bundle.containsKey(resKey)) {
                 resString = bundle.getString(resKey);
             } else {
-                if(defaultValue == null) {
+                if (defaultValue == null) {
                     log.warn("ERROR! Resource string not found: [{}]", resKey);
                 } else {
                     log.debug("Resource string not found: [{}], using default value {}", resKey, defaultValue);
@@ -608,13 +625,13 @@ public class JMeterUtils implements UnitTestManager {
                 resString = defaultValue;
             }
             if (ignoreResources) { // Special mode for debugging resource handling
-                return "["+key+"]";
+                return "[" + key + "]";
             }
         } catch (MissingResourceException mre) { // NOSONAR We handle correctly exception
             if (ignoreResources) { // Special mode for debugging resource handling
-                return "[?"+key+"?]";
+                return "[?" + key + "?]";
             }
-            if(defaultValue == null) {
+            if (defaultValue == null) {
                 log.warn("ERROR! Resource string not found: [{}]", resKey);
             } else {
                 log.debug("Resource string not found: [{}], using default value {}", resKey, defaultValue);
@@ -629,11 +646,12 @@ public class JMeterUtils implements UnitTestManager {
      * If none is found try to fallback to the bundle for the set {@link Locale}
      *
      * @param forcedLocale the {@link Locale} which should be used first
-     * @return the resolved {@link ResourceBundle} or {@code null}, if none could be found
+     * @return the resolved {@link ResourceBundle} or {@code null}, if none could be
+     *         found
      */
     private static ResourceBundle getBundle(Locale forcedLocale) {
-        for (Locale locale: Arrays.asList(forcedLocale, getLocale())) {
-            if(locale != null) {
+        for (Locale locale : Arrays.asList(forcedLocale, getLocale())) {
+            if (locale != null) {
                 ResourceBundle bundle = ResourceBundle.getBundle("org.apache.jmeter.resources.messages", locale); // $NON-NLS-1$
                 if (bundle == null) {
                     log.warn("Could not resolve ResourceBundle for Locale [{}]", locale);
@@ -646,7 +664,8 @@ public class JMeterUtils implements UnitTestManager {
     }
 
     /**
-     * Simple {@link ResourceBundle}, that handles questions for every key, by giving the key back as an answer.
+     * Simple {@link ResourceBundle}, that handles questions for every key, by
+     * giving the key back as an answer.
      */
     private static class DummyResourceBundle extends ResourceBundle {
 
@@ -670,7 +689,7 @@ public class JMeterUtils implements UnitTestManager {
      */
     public static String getParsedLabel(String key) {
         String value = JMeterUtils.getResString(key);
-        if(value != null) {
+        if (value != null) {
             return value.replaceFirst("(?m)\\s*?:\\s*$", ""); // $NON-NLS-1$ $NON-NLS-2$
         } else {
             return null;
@@ -680,12 +699,14 @@ public class JMeterUtils implements UnitTestManager {
     /**
      * Get the locale name as a resource.
      * Does not log an error if the resource does not exist.
-     * This is needed to support additional locales, as they won't be in existing messages files.
+     * This is needed to support additional locales, as they won't be in existing
+     * messages files.
      *
      * @param locale name
-     * @return the locale display name as defined in the current Locale or the original string if not present
+     * @return the locale display name as defined in the current Locale or the
+     *         original string if not present
      */
-    public static String getLocaleString(String locale){
+    public static String getLocaleString(String locale) {
         // All keys in messages.properties are lowercase (historical reasons?)
         String resKey = locale.toLowerCase(java.util.Locale.ENGLISH);
         if (resources.containsKey(resKey)) {
@@ -693,13 +714,16 @@ public class JMeterUtils implements UnitTestManager {
         }
         return locale;
     }
+
     /**
      * This gets the currently defined appProperties. It can only be called
-     * after the {@link #getProperties(String)} or {@link #loadJMeterProperties(String)}
+     * after the {@link #getProperties(String)} or
+     * {@link #loadJMeterProperties(String)}
      * method has been called.
      *
      * @return The JMeterProperties value,
-     *         may be null if {@link #loadJMeterProperties(String)} has not been called
+     *         may be null if {@link #loadJMeterProperties(String)} has not been
+     *         called
      * @see #getProperties(String)
      * @see #loadJMeterProperties(String)
      */
@@ -712,14 +736,14 @@ public class JMeterUtils implements UnitTestManager {
      * org.apache.jmeter.images.&lt;name&gt;
      *
      * @param name
-     *            Description of Parameter
+     *             Description of Parameter
      * @return The Image value
      */
     public static ImageIcon getImage(String name) {
         try {
             URL url = JMeterUtils.class.getClassLoader().getResource(
                     "org/apache/jmeter/images/" + name.trim());
-            if(url != null) {
+            if (url != null) {
                 return new ImageIcon(url); // $NON-NLS-1$
             } else {
                 log.warn("no icon for {}", name);
@@ -738,14 +762,14 @@ public class JMeterUtils implements UnitTestManager {
      * on the clipboard.
      *
      * @param name
-     *            the name of the image
+     *                    the name of the image
      * @param description
-     *            the description of the image
+     *                    the description of the image
      * @return The Image value
      */
     public static ImageIcon getImage(String name, String description) {
         ImageIcon icon = getImage(name);
-        if(icon != null) {
+        if (icon != null) {
             icon.setDescription(description);
         }
         return icon;
@@ -757,7 +781,7 @@ public class JMeterUtils implements UnitTestManager {
             InputStream is = JMeterUtils.class.getClassLoader().getResourceAsStream(name);
             if (is != null) {
                 try (Reader in = new InputStreamReader(is, StandardCharsets.UTF_8);
-                     BufferedReader fileReader = new BufferedReader(in)) {
+                        BufferedReader fileReader = new BufferedReader(in)) {
                     return fileReader.lines()
                             .collect(Collectors.joining(lineEnd, "", lineEnd));
                 }
@@ -773,16 +797,17 @@ public class JMeterUtils implements UnitTestManager {
      * Get a int value with default if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value
      */
     public static int getPropDefault(String propName, int defaultVal) {
         try {
             return Integer.parseInt(appProperties.getProperty(propName, Integer.toString(defaultVal)).trim());
         } catch (Exception e) {
-            log.warn("Exception '{}' occurred when fetching int property:'{}', defaulting to: {}", e.getMessage() , propName, defaultVal);
+            log.warn("Exception '{}' occurred when fetching int property:'{}', defaulting to: {}", e.getMessage(),
+                    propName, defaultVal);
         }
         return defaultVal;
     }
@@ -791,23 +816,24 @@ public class JMeterUtils implements UnitTestManager {
      * Get a boolean value with default if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value
      */
     public static boolean getPropDefault(String propName, boolean defaultVal) {
         try {
             String strVal = appProperties.getProperty(propName, Boolean.toString(defaultVal)).trim();
-            if ("true".equalsIgnoreCase(strVal) || "t".equalsIgnoreCase(strVal)) { // $NON-NLS-1$  // $NON-NLS-2$
+            if ("true".equalsIgnoreCase(strVal) || "t".equalsIgnoreCase(strVal)) { // $NON-NLS-1$ // $NON-NLS-2$
                 return true;
-            } else if ("false".equalsIgnoreCase(strVal) || "f".equalsIgnoreCase(strVal)) { // $NON-NLS-1$  // $NON-NLS-2$
+            } else if ("false".equalsIgnoreCase(strVal) || "f".equalsIgnoreCase(strVal)) { // $NON-NLS-1$ // $NON-NLS-2$
                 return false;
             } else {
                 return Integer.parseInt(strVal) == 1;
             }
         } catch (Exception e) {
-            log.warn("Exception '{}' occurred when fetching boolean property:'{}', defaulting to: {}", e.getMessage(), propName, defaultVal);
+            log.warn("Exception '{}' occurred when fetching boolean property:'{}', defaulting to: {}", e.getMessage(),
+                    propName, defaultVal);
         }
         return defaultVal;
     }
@@ -816,9 +842,9 @@ public class JMeterUtils implements UnitTestManager {
      * Get an array of String if present and not empty, defaultValue if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value
      */
     public static String[] getArrayPropDefault(String propName, String[] defaultVal) {
@@ -838,16 +864,17 @@ public class JMeterUtils implements UnitTestManager {
      * Get a long value with default if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value
      */
     public static long getPropDefault(String propName, long defaultVal) {
         try {
             return Long.parseLong(appProperties.getProperty(propName, Long.toString(defaultVal)).trim());
         } catch (Exception e) {
-            log.warn("Exception '{}' occurred when fetching long property:'{}', defaulting to: {}", e.getMessage(), propName, defaultVal);
+            log.warn("Exception '{}' occurred when fetching long property:'{}', defaulting to: {}", e.getMessage(),
+                    propName, defaultVal);
         }
         return defaultVal;
     }
@@ -856,16 +883,17 @@ public class JMeterUtils implements UnitTestManager {
      * Get a float value with default if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value
      */
     public static float getPropDefault(String propName, float defaultVal) {
         try {
             return Float.parseFloat(appProperties.getProperty(propName, Float.toString(defaultVal)).trim());
         } catch (Exception e) {
-            log.warn("Exception '{}' occurred when fetching float property:'{}', defaulting to: {}", e.getMessage(), propName, defaultVal);
+            log.warn("Exception '{}' occurred when fetching float property:'{}', defaulting to: {}", e.getMessage(),
+                    propName, defaultVal);
         }
         return defaultVal;
     }
@@ -874,16 +902,17 @@ public class JMeterUtils implements UnitTestManager {
      * Get a double value with default if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value
      */
     public static double getPropDefault(String propName, double defaultVal) {
         try {
             return Float.parseFloat(appProperties.getProperty(propName, Double.toString(defaultVal)).trim());
         } catch (Exception e) {
-            log.warn("Exception '{}' occurred when fetching double property:'{}', defaulting to: {}", e.getMessage(), propName, defaultVal);
+            log.warn("Exception '{}' occurred when fetching double property:'{}', defaulting to: {}", e.getMessage(),
+                    propName, defaultVal);
         }
         return defaultVal;
     }
@@ -892,19 +921,20 @@ public class JMeterUtils implements UnitTestManager {
      * Get a String value with default if not present.
      *
      * @param propName
-     *            the name of the property.
+     *                   the name of the property.
      * @param defaultVal
-     *            the default value.
+     *                   the default value.
      * @return The PropDefault value applying a trim on it
      */
     public static String getPropDefault(String propName, String defaultVal) {
         try {
             String value = appProperties.getProperty(propName, defaultVal);
-            if(value != null) {
+            if (value != null) {
                 return value.trim();
             }
         } catch (Exception e) {
-            log.warn("Exception '{}' occurred when fetching String property:'{}', defaulting to: {}", e.getMessage(), propName, defaultVal);
+            log.warn("Exception '{}' occurred when fetching String property:'{}', defaulting to: {}", e.getMessage(),
+                    propName, defaultVal);
         }
         return defaultVal;
     }
@@ -913,7 +943,7 @@ public class JMeterUtils implements UnitTestManager {
      * Get the value of a JMeter property.
      *
      * @param propName
-     *            the name of the property.
+     *                 the name of the property.
      * @return the value of the JMeter property, or {@code null} if not defined
      */
     public static String getProperty(String propName) {
@@ -929,9 +959,9 @@ public class JMeterUtils implements UnitTestManager {
      * Set a String value
      *
      * @param propName
-     *            the name of the property.
+     *                  the name of the property.
      * @param propValue
-     *            the value of the property
+     *                  the value of the property
      * @return the previous value of the property
      */
     public static Object setProperty(String propName, String propValue) {
@@ -941,6 +971,7 @@ public class JMeterUtils implements UnitTestManager {
     /**
      * Report an error through a dialog box.
      * Title defaults to "error_title" resource string
+     * 
      * @param errorMsg - the error message.
      */
     public static void reportErrorToUser(String errorMsg) {
@@ -961,7 +992,8 @@ public class JMeterUtils implements UnitTestManager {
     /**
      * Report an error through a dialog box.
      * Title defaults to "error_title" resource string
-     * @param errorMsg - the error message.
+     * 
+     * @param errorMsg  - the error message.
      * @param exception {@link Exception}
      */
     public static void reportErrorToUser(String errorMsg, Exception exception) {
@@ -972,8 +1004,8 @@ public class JMeterUtils implements UnitTestManager {
      * Report an error through a dialog box in GUI mode
      * or in logs and stdout in Non GUI mode
      *
-     * @param errorMsg - the error message.
-     * @param titleMsg - title string
+     * @param errorMsg  - the error message.
+     * @param titleMsg  - title string
      * @param exception Exception
      */
     public static void reportErrorToUser(String errorMsg, String titleMsg, Exception exception) {
@@ -1007,7 +1039,7 @@ public class JMeterUtils implements UnitTestManager {
     /**
      * Report an information through a dialog box in GUI mode
      *
-     * @param msg - the information message.
+     * @param msg      - the information message.
      * @param titleMsg - title string
      */
     public static void reportInfoToUser(String msg, String titleMsg) {
@@ -1040,8 +1072,10 @@ public class JMeterUtils implements UnitTestManager {
     }
 
     /**
-     * Creates {@link JLabel} that is associated with a given {@link Component} instance.
-     * @param component component for the label
+     * Creates {@link JLabel} that is associated with a given {@link Component}
+     * instance.
+     * 
+     * @param component  component for the label
      * @param resourceId resource ID to be used for retrieving label text
      * @return JLabel instance
      */
@@ -1053,10 +1087,12 @@ public class JMeterUtils implements UnitTestManager {
     }
 
     /**
-     * Creates {@link JLabel} that is associated with a given {@link Component} instance.
-     * @param component component for the label
+     * Creates {@link JLabel} that is associated with a given {@link Component}
+     * instance.
+     * 
+     * @param component  component for the label
      * @param labelValue label text
-     * @param name JLabel name
+     * @param name       JLabel name
      * @return JLabel instance
      */
     public static JLabel labelFor(Component component, String labelValue, String name) {
@@ -1072,9 +1108,9 @@ public class JMeterUtils implements UnitTestManager {
      * one.
      *
      * @param splittee
-     *            Array of Objects to be concatenated.
+     *                  Array of Objects to be concatenated.
      * @param splitChar
-     *            Object to unsplit the strings with.
+     *                  Object to unsplit the strings with.
      * @return Array of all the tokens.
      * @deprecated use {@link JOrphanUtils#unsplit(Object[], Object)}
      */
@@ -1091,14 +1127,14 @@ public class JMeterUtils implements UnitTestManager {
      * one.
      *
      * @param splittee
-     *            Array of Objects to be concatenated.
+     *                  Array of Objects to be concatenated.
      * @param splitChar
-     *            Object to unsplit the strings with.
+     *                  Object to unsplit the strings with.
      * @param def
-     *            Default value to replace null values in array.
+     *                  Default value to replace null values in array.
      * @return Array of all the tokens.
      */
-    //TODO - move to JOrphanUtils?
+    // TODO - move to JOrphanUtils?
     public static String unsplit(Object[] splittee, Object splitChar, String def) {
         StringBuilder retVal = new StringBuilder();
         int count = -1;
@@ -1119,7 +1155,7 @@ public class JMeterUtils implements UnitTestManager {
      * @return true if test is running
      */
     public static boolean isTestRunning() {
-        return JMeterContextService.getTestStartTime()>0;
+        return JMeterContextService.getTestStartTime() > 0;
     }
 
     /**
@@ -1179,10 +1215,10 @@ public class JMeterUtils implements UnitTestManager {
      * @param fileName the name of the file to find
      * @return File object
      */
-    public static File findFile(String fileName){
-        File f =new File(fileName);
-        if (!f.exists()){
-            f=new File(getJMeterBinDir(),fileName);
+    public static File findFile(String fileName) {
+        File f = new File(fileName);
+        if (!f.exists()) {
+            f = new File(getJMeterBinDir(), fileName);
         }
         return f;
     }
@@ -1193,7 +1229,7 @@ public class JMeterUtils implements UnitTestManager {
      *
      * @return String representation of local IP address
      */
-    public static synchronized String getLocalHostIP(){
+    public static synchronized String getLocalHostIP() {
         if (localHostIP == null) {
             getLocalHostDetails();
         }
@@ -1206,7 +1242,7 @@ public class JMeterUtils implements UnitTestManager {
      *
      * @return local host name
      */
-    public static synchronized String getLocalHostName(){
+    public static synchronized String getLocalHostName() {
         if (localHostName == null) {
             getLocalHostDetails();
         }
@@ -1219,31 +1255,31 @@ public class JMeterUtils implements UnitTestManager {
      *
      * @return local host name in canonical form
      */
-    public static synchronized String getLocalHostFullName(){
+    public static synchronized String getLocalHostFullName() {
         if (localHostFullName == null) {
             getLocalHostDetails();
         }
         return localHostFullName;
     }
 
-    private static void getLocalHostDetails(){
-        InetAddress localHost=null;
+    private static void getLocalHostDetails() {
+        InetAddress localHost = null;
         try {
             localHost = InetAddress.getLocalHost();
         } catch (UnknownHostException e1) {
             log.error("Unable to get local host IP address.", e1);
             return; // TODO - perhaps this should be a fatal error?
         }
-        localHostIP=localHost.getHostAddress();
-        localHostName=localHost.getHostName();
-        localHostFullName=localHost.getCanonicalHostName();
+        localHostIP = localHost.getHostAddress();
+        localHostName = localHost.getHostName();
+        localHostFullName = localHost.getCanonicalHostName();
     }
 
     /**
      * Split line into name/value pairs and remove colon ':'
      *
      * @param headers
-     *            multi-line string headers
+     *                multi-line string headers
      * @return a map name/value for each header
      */
     @SuppressWarnings("NonApiType")
@@ -1265,6 +1301,7 @@ public class JMeterUtils implements UnitTestManager {
     /**
      * Run the runnable in AWT Thread if current thread is not AWT thread
      * otherwise runs call {@link SwingUtilities#invokeAndWait(Runnable)}
+     * 
      * @param runnable {@link Runnable}
      */
     public static void runSafe(Runnable runnable) {
@@ -1274,12 +1311,14 @@ public class JMeterUtils implements UnitTestManager {
     /**
      * Run the runnable in AWT Thread if current thread is not AWT thread
      * otherwise runs call {@link SwingUtilities#invokeAndWait(Runnable)}
-     * @param synchronous flag, whether we will wait for the AWT Thread to finish its job.
-     * @param runnable {@link Runnable}
+     * 
+     * @param synchronous flag, whether we will wait for the AWT Thread to finish
+     *                    its job.
+     * @param runnable    {@link Runnable}
      */
     public static void runSafe(boolean synchronous, Runnable runnable) {
-        if(SwingUtilities.isEventDispatchThread()) {
-            runnable.run();//NOSONAR
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable.run();// NOSONAR
         } else {
             if (synchronous) {
                 try {
@@ -1306,8 +1345,10 @@ public class JMeterUtils implements UnitTestManager {
     }
 
     /**
-     * Hack to make matcher clean the two internal buffers it keeps in memory which size is equivalent to
+     * Hack to make matcher clean the two internal buffers it keeps in memory which
+     * size is equivalent to
      * the unzipped page size
+     * 
      * @param matcher {@link Perl5Matcher}
      * @param pattern Pattern
      */
@@ -1323,24 +1364,28 @@ public class JMeterUtils implements UnitTestManager {
 
     /**
      * Provide info, whether we run in HiDPI mode
+     * 
      * @return {@code true} if we run in HiDPI mode, {@code false} otherwise
      */
     @API(since = "5.3", status = API.Status.DEPRECATED)
     public static boolean getHiDPIMode() {
-        return JMeterUtils.getPropDefault("jmeter.hidpi.mode", false);  // $NON-NLS-1$
+        return JMeterUtils.getPropDefault("jmeter.hidpi.mode", false); // $NON-NLS-1$
     }
 
     /**
      * Provide info about the HiDPI scale factor
+     * 
      * @return the factor by which we should scale elements for HiDPI mode
      */
     @API(since = "5.3", status = API.Status.DEPRECATED)
     public static double getHiDPIScaleFactor() {
-        return Double.parseDouble(JMeterUtils.getPropDefault("jmeter.hidpi.scale.factor", "1.0"));  // $NON-NLS-1$  $NON-NLS-2$
+        return Double.parseDouble(JMeterUtils.getPropDefault("jmeter.hidpi.scale.factor", "1.0")); // $NON-NLS-1$
+                                                                                                   // $NON-NLS-2$
     }
 
     /**
      * Apply HiDPI mode management to {@link JTable}
+     * 
      * @param table the {@link JTable} which should be adapted for HiDPI mode
      */
     @API(since = "5.3", status = API.Status.DEPRECATED)
@@ -1350,17 +1395,18 @@ public class JMeterUtils implements UnitTestManager {
 
     /**
      * Return delimiterValue handling the TAB case
+     * 
      * @param delimiterValue Delimited value
      * @return String delimited modified to handle correctly tab
      * @throws JMeterError if delimiterValue has a length different from 1
      */
     public static String getDelimiter(String delimiterValue) {
         if ("\\t".equals(delimiterValue)) {// Make it easier to enter a tab (can use \<tab> but that is awkward)
-            delimiterValue="\t";
+            delimiterValue = "\t";
         }
 
-        if (delimiterValue.length() != 1){
-            throw new JMeterError("Delimiter '"+delimiterValue+"' must be of length 1.");
+        if (delimiterValue.length() != 1) {
+            throw new JMeterError("Delimiter '" + delimiterValue + "' must be of length 1.");
         }
         return delimiterValue;
     }
@@ -1378,6 +1424,7 @@ public class JMeterUtils implements UnitTestManager {
 
     /**
      * Apply HiDPI scale factor on fonts
+     * 
      * @param scale float scale to apply
      */
     @API(since = "5.3", status = API.Status.DEPRECATED)
@@ -1396,6 +1443,7 @@ public class JMeterUtils implements UnitTestManager {
 
     /**
      * Setup default security policy
+     * 
      * @param xstream {@link XStream}
      */
     public static void setupXStreamSecurityPolicy(XStream xstream) {
