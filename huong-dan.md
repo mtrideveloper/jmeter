@@ -32,6 +32,7 @@ user_defined_variables_tooltip=(Config Element) Khai báo các biến toàn cụ
 1. Thêm 1 search bar `src\core\src\main\java\org\apache\jmeter\mtri\gui\JMeterMtriSearchBar.java`
 vào hàng toolbar `src\core\src\main\java\org\apache\jmeter\gui\util\JMeterToolBar.java`
 ```properties
+# icons-toolbar.properties
 search_mtri=Search by MTRI
 search_mtri_tooltip=Search any things
 search_mtri_reset=Reset
