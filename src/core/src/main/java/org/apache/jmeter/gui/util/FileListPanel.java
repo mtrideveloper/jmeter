@@ -53,7 +53,9 @@ public class FileListPanel extends JPanel implements ActionListener {
 
     private static final String ACTION_BROWSE = "browse"; // $NON-NLS-1$
 
-    private static final String LABEL_LIBRARY = "library"; // $NON-NLS-1$
+    // private static final String LABEL_LIBRARY = "library"; // $NON-NLS-1$
+    // private static final String LABEL_LIBRARY = "MTRI WAS HERE! library"; //
+    // $NON-NLS-1$
 
     private final JButton browse = new JButton(JMeterUtils.getResString(ACTION_BROWSE));
 
@@ -88,7 +90,8 @@ public class FileListPanel extends JPanel implements ActionListener {
 
     /**
      * Constructor for the FilePanel object.
-     * @param l The changelistener for this panel
+     * 
+     * @param l     The changelistener for this panel
      * @param title The title of this panel
      */
     public FileListPanel(ChangeListener l, String title) {
@@ -101,30 +104,32 @@ public class FileListPanel extends JPanel implements ActionListener {
         listeners.add(l);
     }
 
-    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
+    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or
+                          // final)
         this.setLayout(new BorderLayout(0, 5));
         setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
         JLabel jtitle = new JLabel(title);
-        //#region Added by MTRI
+        // #region Added by MTRI
         jtitle.setToolTipText(JMeterUtils.getResString("test_plan_classpath_browse_tooltip")); // $NON-NLS-1$
-        //#endregion
-        
+        // #endregion
+
         HorizontalPanel buttons = new HorizontalPanel();
         buttons.add(jtitle);
         buttons.add(browse);
         buttons.add(delete);
         buttons.add(clear);
-        add(buttons,BorderLayout.NORTH);
+        add(buttons, BorderLayout.NORTH);
 
         this.initializeTableModel();
         files = new JTable(tableModel);
+        // files.setTableHeader();
         JMeterUtils.applyHiDPI(files);
         files.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         files.revalidate();
 
         JScrollPane scrollpane = new JScrollPane(files);
-        scrollpane.setPreferredSize(new Dimension(100,80));
-        add(scrollpane,BorderLayout.CENTER);
+        scrollpane.setPreferredSize(new Dimension(100, 80));
+        add(scrollpane, BorderLayout.CENTER);
 
         browse.setActionCommand(ACTION_BROWSE); // $NON-NLS-1$
         browse.addActionListener(this);
@@ -144,6 +149,7 @@ public class FileListPanel extends JPanel implements ActionListener {
 
     /**
      * Add a single file to the table
+     * 
      * @param f The name of the file to be added
      */
     public void addFilename(String f) {
@@ -167,8 +173,8 @@ public class FileListPanel extends JPanel implements ActionListener {
     public String[] getFiles() {
         GuiUtils.stopTableEditing(files);
         String[] filesArray = new String[tableModel.getRowCount()];
-        for (int idx=0; idx < filesArray.length; idx++) {
-            filesArray[idx] = (String)tableModel.getValueAt(idx,0);
+        for (int idx = 0; idx < filesArray.length; idx++) {
+            filesArray[idx] = (String) tableModel.getValueAt(idx, 0);
         }
         return filesArray;
     }
@@ -192,8 +198,10 @@ public class FileListPanel extends JPanel implements ActionListener {
     }
 
     protected void initializeTableModel() {
-        tableModel = new ObjectTableModel(new String[] { JMeterUtils.getResString(LABEL_LIBRARY) },
-                new Functor[0] , new Functor[0] , // i.e. bypass the Functors
+        tableModel = new ObjectTableModel(
+                new String[] { JMeterUtils.getResString("library") },
+                // new String[] { "Hello world" },
+                new Functor[0], new Functor[0], // i.e. bypass the Functors
                 new Class[] { String.class });
     }
 
@@ -208,8 +216,7 @@ public class FileListPanel extends JPanel implements ActionListener {
             chooser.setFileFilter(new JMeterFileFilter(new String[] { filetype }));
             chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             chooser.setMultiSelectionEnabled(true);
-            if (chooser.showOpenDialog(GuiPackage.getInstance().getMainFrame()) !=
-                    JFileChooser.APPROVE_OPTION) {
+            if (chooser.showOpenDialog(GuiPackage.getInstance().getMainFrame()) != JFileChooser.APPROVE_OPTION) {
                 return;
             }
             File[] cfiles = chooser.getSelectedFiles();

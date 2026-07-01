@@ -42,3 +42,29 @@ search_mtri_reset=Reset
 1. Sửa 1 số icon trông pro hơn.
 `src\core\src\main\resources\org\apache\jmeter\images\toolbar\icons-toolbar.properties`
 `src\core\src\main\java\org\apache\jmeter\gui\util\JMeterToolBar.java::DEFAULT_TOOLBAR_PROPERTY_FILE`
+2. Cây:
+JMeterTreeModel
+    |_ JMeterTreeNode
+        |_ TestElement (Http Request, Thread Group,...) `src\core\src\main\kotlin\org\apache\jmeter\testelement\TestElement.kt`
+
+3. Implements:
+`src\core\src\main\java\org\apache\jmeter\gui\Searchable.java`.getSearchableTokens được triển khai ở `src\core\src\main\java\org\apache\jmeter\testelement\AbstractTestElement.java` và `src\core\src\main\java\org\apache\jmeter\samplers\SampleResult.java`
+
+4. `ActionRouter.java` có nhiệm vụ gì?
+
+## 29/06/26
+1. Nơi tạo border cho 1 node.testelement trong tree khi search: `src\core\src\main\java\org\apache\jmeter\gui\tree\JMeterCellRenderer.java` dòng 74->..
+2. `src\core\src\main\java\org\apache\jmeter\mtri\gui\MtriFindInCurrentViewSearchBar.java`
+Kiểm tra
+```java
+c instanceof JTable
+```
+không tìm được text của 
+```java
+ObjectTableModel tableModel
+```
+tại `src\core\src\main\java\org\apache\jmeter\gui\util\FileListPanel.java`
+
+## 02/07/26
+1. Đã hightlight được cell của Jtable [được bọc bởi JScrollPane](/src/core/src/main/java/org/apache/jmeter/mtri/gui/MtriFindInCurrentViewSearchBar.java#244)
+2. Nghẫm lại logic xử lý [code](/src/core/src/main/java/org/apache/jmeter/mtri/gui/MtriFindInCurrentViewSearchBar.java#L66).

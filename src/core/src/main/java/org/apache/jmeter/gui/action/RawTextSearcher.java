@@ -45,9 +45,17 @@ public class RawTextSearcher implements Searcher {
      */
     @Override
     public boolean search(List<String> textTokens) {
-        return textTokens.stream()
-                .filter(StringUtilities::isNotEmpty)
+        return textTokens.stream() // tạo stream api
+                .filter(StringUtilities::isNotEmpty) // lọc các token không rỗng
+                // kiểm tra xem có bất kỳ token nào chứa textToSearch không, với caseSensitive
                 .anyMatch(token -> StringsKt.contains(token, textToSearch, !caseSensitive));
+                // .anyMatch(token -> 
+                //     textToSearch != null && 
+                //     (caseSensitive 
+                //         ? token.contains(textToSearch) 
+                //         : token.toLowerCase().contains(textToSearch.toLowerCase())
+                //     )
+                // );
     }
 
     @Override

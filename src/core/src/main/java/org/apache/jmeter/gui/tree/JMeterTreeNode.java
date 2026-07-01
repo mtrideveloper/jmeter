@@ -188,9 +188,11 @@ public class JMeterTreeNode extends DefaultMutableTreeNode implements NamedTreeN
         }
     }
 
+    //#region TestElement
     public TestElement getTestElement() {
         return (TestElement) getUserObject();
     }
+    //#endregion
 
     public String getStaticLabel() {
         return GuiPackage.getInstance().getGui((TestElement) getUserObject()).getStaticLabel();

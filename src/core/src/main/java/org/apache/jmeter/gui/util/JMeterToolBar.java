@@ -35,7 +35,7 @@ import javax.swing.JToolBar;
 import org.apache.jmeter.gui.UndoHistory;
 import org.apache.jmeter.gui.action.ActionNames;
 import org.apache.jmeter.gui.action.ActionRouter;
-import org.apache.jmeter.mtri.gui.JMeterMtriSearchBar;
+import org.apache.jmeter.mtri.gui.MtriFindInCurrentViewSearchBar;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.util.LocaleChangeEvent;
 import org.apache.jmeter.util.LocaleChangeListener;
@@ -140,7 +140,7 @@ public class JMeterToolBar extends JToolBar implements LocaleChangeListener {
             toolBar.initButtonsState();
         }
         //#region Added by MTRI
-        JMeterMtriSearchBar searchBar = new JMeterMtriSearchBar();
+        MtriFindInCurrentViewSearchBar searchBar = new MtriFindInCurrentViewSearchBar();
         searchBar.addToToolbar(toolBar);
         //#endregion
     }

@@ -70,6 +70,7 @@ public class JMeterCellRenderer extends DefaultTreeCellRenderer {
             }
         }
         this.setEnabled(enabled);
+        //#region MTRI was here!
         if(node.isMarkedBySearch()) {
             setBorder(RED_BORDER);
         } else if (node.isChildrenMarkedBySearch()) {

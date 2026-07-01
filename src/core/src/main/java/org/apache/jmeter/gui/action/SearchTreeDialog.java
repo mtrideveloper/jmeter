@@ -377,14 +377,25 @@ public class SearchTreeDialog extends JDialog implements ActionListener { // NOS
         }
     }
 
+    /// int: số lượng node tìm thấy, 
+    /// Set<JMeterTreeNode>: Tập hợp các node khớp với từ khóa
     private Map.Entry<Integer, Set<JMeterTreeNode>> searchInTree(GuiPackage guiPackage, Searcher searcher, String wordToSearch) {
+        // đếm sốt nút khớp từ khóa
         int numberOfMatches = 0;
+        // Lấy tree model Test Plan
         JMeterTreeModel jMeterTreeModel = guiPackage.getTreeModel();
+        // Tạo 1 tập rỗng các node
         Set<JMeterTreeNode> nodes = new LinkedHashSet<>();
+        // duyệt qua node của tree model, điều kiện node.TestElement implements Searchable
         for (JMeterTreeNode jMeterTreeNode : jMeterTreeModel.getNodesOfType(Searchable.class)) {
             try {
+                // get test element
                 Searchable searchable = (Searchable) jMeterTreeNode.getUserObject();
+                // Lấy danh sách tất cả các token cần hiển thị để tìm kiếm
+                // với test element: là các name, value của 1 JMeterProperty, là 1 Serializable (xem AbstractTestElement.java)
+                // với sample result: là các label, response data, req/res headers
                 List<String> searchableTokens = searchable.getSearchableTokens();
+                // kiểm tra danh sách token có chứa từ khóa không
                 boolean result = searcher.search(searchableTokens);
                 if (result) {
                     numberOfMatches++;
