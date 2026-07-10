@@ -68,3 +68,6 @@ tại `src\core\src\main\java\org\apache\jmeter\gui\util\FileListPanel.java`
 ## 02/07/26
 1. Đã hightlight được cell của Jtable [được bọc bởi JScrollPane](/src/core/src/main/java/org/apache/jmeter/mtri/gui/MtriFindInCurrentViewSearchBar.java#L244)
 2. Nghẫm lại logic xử lý [code](/src/core/src/main/java/org/apache/jmeter/mtri/gui/MtriFindInCurrentViewSearchBar.java#L66).
+
+## 10/07/26
+1. Fix lỗi hightlight sai chỗ của text trong tab Response Body (nó dùng JEditorPane, không dùng chung JTextComponent)

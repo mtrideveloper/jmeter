@@ -12,7 +12,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.JTextComponent;
+
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Search Bar nâng cao cho phép tìm kiếm và highlight trên TẤT CẢ các thành phần
@@ -37,7 +40,8 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
     private final JButton clearButton;
 
     // Quản lý riêng highlight cho JTextComponent (Highlight từng từ)
-    private final Map<JTextComponent, List<Object>> textHighlightMap = new HashMap<>();
+    private final Map<JTextComponent, List<Object>> jtextHighlightMap = new HashMap<>();
+    private final Map<JEditorPane, List<Object>> jeditorPaneHighlightMap = new HashMap<>();
 
     // Quản lý Border highlight cho các thành phần khác (JLabel, JCheckBox...) để
     // khôi phục lại Border gốc
@@ -45,6 +49,8 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
 
     // Quản lý highlight cho JTable
     private final Map<JTable, List<CellHighlight>> tableHighlightMap = new HashMap<>();
+
+    private final HighlightPainter painter;
 
     // Class chứa thông tin cell cần highlight
     private static class CellHighlight {
@@ -98,6 +104,9 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
         searchButton = new JButton(JMeterUtils.getResString("search_mtri"));
         clearButton = new JButton(JMeterUtils.getResString("search_mtri_reset"));
 
+        painter = new DefaultHighlighter.DefaultHighlightPainter(
+                new Color(200, 200, 0, 100));
+
         initComponents();
     }
 
@@ -144,9 +153,6 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
         Component firstMatchComponent = null;
         int totalMatches = 0;
 
-        Highlighter.HighlightPainter textPainter = new DefaultHighlighter.DefaultHighlightPainter(
-                new Color(200, 200, 0, 100));
-
         Border componentHighlightBorder = BorderFactory.createLineBorder(new Color(255, 140, 0), 2); // Viền Cam nổi bật
 
         // 2. Tiến hành kiểm tra và highlight dựa trên loại Component
@@ -165,19 +171,64 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
 
             totalMatches += matchPositions.size();
 
-            if (comp instanceof JTextComponent jTextComp) {
+            if (comp instanceof JEditorPane jEditorPane) {
+                if (jEditorPane.getText() == null || jEditorPane.getText().isEmpty()) {
+                    continue;
+                }
+
+                // Tìm tất cả vị trí match (giống JTextComponent)
+                // List<Integer> matchedPositions = findAllMatches(jEditorPane.getText(),
+                // searchText);
+
+                try {
+                    List<Integer> matchedPositions = findAllMatches(
+                            jEditorPane.getDocument().getText(0, jEditorPane.getDocument().getLength()), searchText);
+
+                    if (matchedPositions.isEmpty()) {
+                        continue;
+                    }
+                    List<Object> tags = new ArrayList<>(); // lưu tags để clear sau này
+                    Highlighter highlighter = jEditorPane.getHighlighter();
+
+                    // Xóa highlight cũ trước khi thêm mới
+                    highlighter.removeAllHighlights();
+
+                    // Thêm highlight cho tất cả các match
+                    for (int start : matchedPositions) {
+                        Object tag = highlighter.addHighlight(
+                                start,
+                                start + searchText.length(),
+                                painter);
+                        tags.add(tag);
+                    }
+
+                    // Lưu lại để clear sau này
+                    jeditorPaneHighlightMap.put(jEditorPane, tags);
+
+                    // Focus vào match đầu tiên
+                    if (!foundAny) {
+                        foundAny = true;
+                        firstMatchComponent = jEditorPane;
+                        jEditorPane.setCaretPosition(matchedPositions.get(0));
+                        jEditorPane.moveCaretPosition(matchedPositions.get(0) + searchText.length());
+                    }
+
+                } catch (BadLocationException ble) {
+                    logger.warn("Lỗi highlight JEditorPane: {}", ble.getMessage());
+                }
+            } else if (comp instanceof JTextComponent jTextComp) {
                 // Sử dụng cơ chế Highlighter truyền thống cho ô nhập liệu
                 List<Object> tags = new ArrayList<>();
                 Highlighter highlighter = jTextComp.getHighlighter();
                 for (int start : matchPositions) {
                     try {
-                        Object tag = highlighter.addHighlight(start, start + searchText.length(), textPainter);
+                        Object tag = highlighter.addHighlight(start, start + searchText.length(), painter);
                         tags.add(tag);
                     } catch (BadLocationException ex) {
                         logger.error("Lỗi khi tạo highlight văn bản: {}", ex.getMessage());
                     }
                 }
-                textHighlightMap.put(jTextComp, tags);
+                jtextHighlightMap.put(jTextComp, tags);
 
                 if (!foundAny) {
                     foundAny = true;
@@ -305,23 +356,33 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
 
     private void clearHighlights() {
         // 1. Xóa highlight trên các ô nhập liệu (JTextComponent)
-        for (Map.Entry<JTextComponent, List<Object>> entry : textHighlightMap.entrySet()) {
+        for (Entry<JTextComponent, List<Object>> entry : jtextHighlightMap.entrySet()) {
             JTextComponent comp = entry.getKey();
             Highlighter highlighter = comp.getHighlighter();
             for (Object tag : entry.getValue()) {
                 highlighter.removeHighlight(tag);
             }
         }
-        textHighlightMap.clear();
+        jtextHighlightMap.clear();
+
+        // xóa highlight trên các JEditorPane
+        for (Entry<JEditorPane, List<Object>> entry : jeditorPaneHighlightMap.entrySet()) {
+            JEditorPane comp = entry.getKey();
+            Highlighter highlighter = comp.getHighlighter();
+            for (Object tag : entry.getValue()) {
+                highlighter.removeHighlight(tag);
+            }
+        }
+        jeditorPaneHighlightMap.clear();
 
         // 2. Khôi phục lại Border nguyên bản cho JLabel, JCheckBox, JComboBox
-        for (Map.Entry<JComponent, Border> entry : originalBordersMap.entrySet()) {
+        for (Entry<JComponent, Border> entry : originalBordersMap.entrySet()) {
             entry.getKey().setBorder(entry.getValue());
         }
         originalBordersMap.clear();
 
         // Xóa highlight JTable
-        for (Map.Entry<JTable, List<CellHighlight>> entry : tableHighlightMap.entrySet()) {
+        for (Entry<JTable, List<CellHighlight>> entry : tableHighlightMap.entrySet()) {
             JTable table = entry.getKey();
             // Khôi phục renderer mặc định
             table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer());
