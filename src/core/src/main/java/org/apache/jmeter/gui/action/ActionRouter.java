@@ -82,6 +82,11 @@ public final class ActionRouter implements ActionListener {
                     preActionPerformed(c.getClass(), e);
                     c.doAction(e);
                     postActionPerformed(c.getClass(), e);
+                    // terminal in vscode
+                    System.out.println("Action performed: " + actionCommand + " by " + c.getClass().getName());
+                    // terminal in gui
+                    log.info("Action performed: {} by {}", actionCommand, c.getClass().getName());
+                    
                 } catch (IllegalUserActionException err) {
                     String msg = err.getMessage();
                     if (msg == null) {

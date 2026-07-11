@@ -182,7 +182,9 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
 
                 try {
                     List<Integer> matchedPositions = findAllMatches(
-                            jEditorPane.getDocument().getText(0, jEditorPane.getDocument().getLength()), searchText);
+                            jEditorPane.getDocument().getText(
+                                    0, jEditorPane.getDocument().getLength()),
+                            searchText);
 
                     if (matchedPositions.isEmpty()) {
                         continue;
@@ -337,6 +339,32 @@ public class MtriFindInCurrentViewSearchBar extends JPanel {
         return "";
     }
 
+    /** Ví dụ: 
+     * findAllMatches(
+     * textLC = "@div@@h1@Abc@/h1@@/div@"
+     * patternLC = "div"
+     * )
+     * {
+     * index = 0
+     * while (index = textLC.indexOf(div, 0) = 1) >= 0 là true:
+     * [1]
+     * index += "div".length = 3 = 4
+     * while (index = textLC.indexOf(div, 4) = 6) >= 0 là true:
+     * [1, 6]
+     * index += "div".length = 3 = 9
+     * while (index = textLC.indexOf(div, 9) = 15) >= 0 là true:
+     * [1, 6, 15]
+     * index += "div".length = 3 = 18
+     * while (index = textLC.indexOf(div, 18) = 21) >= 0 là true:
+     * [1, 6, 15, 21]
+     * index += "div".length = 3 = 24
+     * while (index = textLC.indexOf(div, 24)) >= 0 là false
+     * }
+     * 
+     * @param content    Nội dung văn bản
+     * @param searchText Từ khóa tìm kiếm
+     * @return Danh sách các vị trí khớp
+     */
     private static List<Integer> findAllMatches(String content, String searchText) {
         List<Integer> positions = new ArrayList<>();
         if (content == null || searchText == null || searchText.isEmpty()) {

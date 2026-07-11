@@ -69,11 +69,11 @@ public final class MenuFactory {
     private static final Logger log = LoggerFactory.getLogger(MenuFactory.class);
 
     /*
-     *  Predefined strings for makeMenu().
-     *  These are used as menu categories in the menuMap HashMap,
-     *  and also for resource lookup in messages.properties
-     *  TODO: why isn't this an enum?
-    */
+     * Predefined strings for makeMenu().
+     * These are used as menu categories in the menuMap HashMap,
+     * and also for resource lookup in messages.properties
+     * TODO: why isn't this an enum?
+     */
     public static final String THREADS = "menu_threads"; //$NON-NLS-1$
     public static final String FRAGMENTS = "menu_fragments"; //$NON-NLS-1$
     public static final String TIMERS = "menu_timer"; //$NON-NLS-1$
@@ -135,7 +135,7 @@ public final class MenuFactory {
             List<String> guiClasses = ClassFinder
                     .findClassesThatExtend(
                             JMeterUtils.getSearchPaths(),
-                            new Class[] {JMeterGUIComponent.class, TestBean.class})
+                            new Class[] { JMeterGUIComponent.class, TestBean.class })
                     .stream()
                     // JMeterTreeNode and TestBeanGUI are special GUI classes,
                     // and aren't intended to be added to menus
@@ -171,7 +171,7 @@ public final class MenuFactory {
                     log.debug("{} participates in no menus.", className);
                     continue;
                 }
-                for (Map.Entry<String, List<MenuInfo>> entry: menus.entrySet()) {
+                for (Map.Entry<String, List<MenuInfo>> entry : menus.entrySet()) {
                     if (categories.contains(entry.getKey())) {
                         entry.getValue().add(new MenuInfo(item, className));
                     }
@@ -215,7 +215,8 @@ public final class MenuFactory {
                 item = (JMeterGUIComponent) c.getDeclaredConstructor().newInstance();
             }
         } catch (NoClassDefFoundError e) {
-            log.warn("Configuration error, probably corrupt or missing third party library(jar)? Could not create class: {}.",
+            log.warn(
+                    "Configuration error, probably corrupt or missing third party library(jar)? Could not create class: {}.",
                     name, e);
         } catch (HeadlessException e) {
             log.warn("Could not instantiate class: {}", name, e);
@@ -261,9 +262,9 @@ public final class MenuFactory {
         if (removable) {
             menu.add(makeMenuItemRes("cut", ActionNames.CUT, KeyStrokes.CUT)); //$NON-NLS-1$
         }
-        menu.add(makeMenuItemRes("copy", ActionNames.COPY, KeyStrokes.COPY));  //$NON-NLS-1$
+        menu.add(makeMenuItemRes("copy", ActionNames.COPY, KeyStrokes.COPY)); //$NON-NLS-1$
         menu.add(makeMenuItemRes("paste", ActionNames.PASTE, KeyStrokes.PASTE)); //$NON-NLS-1$
-        menu.add(makeMenuItemRes("duplicate", ActionNames.DUPLICATE, KeyStrokes.DUPLICATE));  //$NON-NLS-1$
+        menu.add(makeMenuItemRes("duplicate", ActionNames.DUPLICATE, KeyStrokes.DUPLICATE)); //$NON-NLS-1$
         if (removable) {
             menu.add(makeMenuItemRes("remove", ActionNames.REMOVE, KeyStrokes.REMOVE)); //$NON-NLS-1$
         }
@@ -279,12 +280,12 @@ public final class MenuFactory {
     }
 
     /**
-     * @param menu JPopupMenu
+     * @param menu                    JPopupMenu
      * @param addSaveTestFragmentMenu Add Save as Test Fragment menu if true
      */
     public static void addFileMenu(JPopupMenu menu, boolean addSaveTestFragmentMenu) {
         // the undo/redo as a standard goes first in Edit menus
-        if(UndoHistory.isEnabled()) {
+        if (UndoHistory.isEnabled()) {
             addUndoItems(menu);
         }
 
@@ -292,7 +293,7 @@ public final class MenuFactory {
         menu.add(makeMenuItemRes("open", ActionNames.OPEN));// $NON-NLS-1$
         menu.add(makeMenuItemRes("menu_merge", ActionNames.MERGE));// $NON-NLS-1$
         menu.add(makeMenuItemRes("save_as", ActionNames.SAVE_AS));// $NON-NLS-1$
-        if(addSaveTestFragmentMenu) {
+        if (addSaveTestFragmentMenu) {
             menu.add(makeMenuItemRes("save_as_test_fragment", // $NON-NLS-1$
                     ActionNames.SAVE_AS_TEST_FRAGMENT));
         }
@@ -300,7 +301,7 @@ public final class MenuFactory {
         JMenuItem saveKotlinDsl = makeMenuItemRes("copy_code", // $NON-NLS-1$
                 ActionNames.COPY_CODE);
         menu.add(saveKotlinDsl);
-        JMenuItem savePicture = makeMenuItemRes("save_as_image",// $NON-NLS-1$
+        JMenuItem savePicture = makeMenuItemRes("save_as_image", // $NON-NLS-1$
                 ActionNames.SAVE_GRAPHICS,
                 KeyStrokes.SAVE_GRAPHICS);
         menu.add(savePicture);
@@ -308,7 +309,7 @@ public final class MenuFactory {
             savePicture.setEnabled(false);
         }
 
-        JMenuItem savePictureAll = makeMenuItemRes("save_as_image_all",// $NON-NLS-1$
+        JMenuItem savePictureAll = makeMenuItemRes("save_as_image_all", // $NON-NLS-1$
                 ActionNames.SAVE_GRAPHICS_ALL,
                 KeyStrokes.SAVE_GRAPHICS_ALL);
         menu.add(savePictureAll);
@@ -347,7 +348,6 @@ public final class MenuFactory {
         menu.add(redo);
     }
 
-
     public static JMenu makeMenus(String[] categories, String label, String actionCommand) {
         JMenu addMenu = new JMenu(label);
         Arrays.stream(categories)
@@ -366,18 +366,18 @@ public final class MenuFactory {
         addMenu.add(MenuFactory.makeMenu(MenuFactory.CONTROLLERS, addAction));
         addMenu.addSeparator();
         pop.add(addDefaultAddMenuToMenu(addMenu, addAction));
-        pop.add(MenuFactory.makeMenuItemRes("add_think_times",// $NON-NLS-1$
+        pop.add(MenuFactory.makeMenuItemRes("add_think_times", // $NON-NLS-1$
                 ActionNames.ADD_THINK_TIME_BETWEEN_EACH_STEP));
 
-        pop.add(MenuFactory.makeMenuItemRes("apply_naming",// $NON-NLS-1$
+        pop.add(MenuFactory.makeMenuItemRes("apply_naming", // $NON-NLS-1$
                 ActionNames.APPLY_NAMING_CONVENTION));
 
-        pop.add(makeMenus(new String[]{CONTROLLERS},
-                JMeterUtils.getResString("change_parent"),// $NON-NLS-1$
+        pop.add(makeMenus(new String[] { CONTROLLERS },
+                JMeterUtils.getResString("change_parent"), // $NON-NLS-1$
                 ActionNames.CHANGE_PARENT));
 
-        pop.add(makeMenus(new String[]{CONTROLLERS},
-                JMeterUtils.getResString("insert_parent"),// $NON-NLS-1$
+        pop.add(makeMenus(new String[] { CONTROLLERS },
+                JMeterUtils.getResString("insert_parent"), // $NON-NLS-1$
                 ActionNames.ADD_PARENT));
         MenuFactory.addEditMenu(pop, true);
         MenuFactory.addFileMenu(pop);
@@ -400,6 +400,7 @@ public final class MenuFactory {
         addMenu.add(MenuFactory.makeMenu(MenuFactory.PRE_PROCESSORS, addAction));
         addMenu.add(MenuFactory.makeMenu(MenuFactory.POST_PROCESSORS, addAction));
         addMenu.addSeparator();
+        // #region MTRI WAS HERE!
         addMenu.add(MenuFactory.makeMenu(MenuFactory.CONFIG_ELEMENTS, addAction));
         addMenu.add(MenuFactory.makeMenu(MenuFactory.LISTENERS, addAction));
         return addMenu;
@@ -408,8 +409,8 @@ public final class MenuFactory {
     public static JPopupMenu getDefaultSamplerMenu() {
         JPopupMenu pop = new JPopupMenu();
         pop.add(createDefaultAddMenu());
-        pop.add(makeMenus(new String[]{CONTROLLERS},
-                JMeterUtils.getResString("insert_parent"),// $NON-NLS-1$
+        pop.add(makeMenus(new String[] { CONTROLLERS },
+                JMeterUtils.getResString("insert_parent"), // $NON-NLS-1$
                 ActionNames.ADD_PARENT));
         MenuFactory.addEditMenu(pop, true);
         MenuFactory.addFileMenu(pop);
@@ -474,7 +475,7 @@ public final class MenuFactory {
      * @param menuInfo      collection of MenuInfo items
      * @param actionCommand predefined string, e.g. ActionNames.ADD
      *                      {@link ActionNames}
-     * @param menuName The name of the newly created menu
+     * @param menuName      The name of the newly created menu
      * @return the menu
      */
     private static JMenu makeMenu(
@@ -497,8 +498,8 @@ public final class MenuFactory {
     /**
      * Create a single menu item
      *
-     * @param label for the MenuItem
-     * @param name for the MenuItem
+     * @param label         for the MenuItem
+     * @param name          for the MenuItem
      * @param actionCommand predefined string, e.g. ActionNames.ADD
      *                      {@link ActionNames}
      * @return the menu item
@@ -517,7 +518,7 @@ public final class MenuFactory {
     /**
      * Create a single menu item from the resource name.
      *
-     * @param resource for the MenuItem
+     * @param resource      for the MenuItem
      * @param actionCommand predefined string, e.g. ActionNames.ADD
      *                      {@link ActionNames}
      * @return the menu item
@@ -536,7 +537,7 @@ public final class MenuFactory {
     /**
      * Create a single menu item from a MenuInfo object
      *
-     * @param info the MenuInfo object
+     * @param info          the MenuInfo object
      * @param actionCommand predefined string, e.g. ActionNames.ADD
      *                      {@link ActionNames}
      * @return the menu item
@@ -553,6 +554,7 @@ public final class MenuFactory {
         if (actionCommand != null) {
             newMenuChoice.setActionCommand(actionCommand);
         }
+        //#region MTRI WAS HERE!
 
         return newMenuChoice;
     }
@@ -583,7 +585,7 @@ public final class MenuFactory {
      */
     public static boolean canAddTo(JMeterTreeNode parentNode, TestElement element) {
         JMeterTreeNode node = new JMeterTreeNode(element, null);
-        return canAddTo(parentNode, new JMeterTreeNode[]{node});
+        return canAddTo(parentNode, new JMeterTreeNode[] { node });
     }
 
     /**
@@ -592,19 +594,19 @@ public final class MenuFactory {
      * Used by DragNDrop and Paste.
      *
      * @param parentNode The {@link JMeterTreeNode} to test, if <code>nodes[]</code>
-     *            can be added to it
+     *                   can be added to it
      * @param nodes      array of nodes that are to be added
      * @return whether it is OK to add the dragged nodes to this parent
      */
     public static boolean canAddTo(JMeterTreeNode parentNode, JMeterTreeNode[] nodes) {
         if (parentNode == null
-                || foundClass(nodes, new Class[]{TestPlan.class})) {
+                || foundClass(nodes, new Class[] { TestPlan.class })) {
             return false;
         }
         TestElement parent = parentNode.getTestElement();
 
         // Force TestFragment to only be pastable under a Test Plan
-        if (foundClass(nodes, new Class[]{TestFragmentController.class})) {
+        if (foundClass(nodes, new Class[] { TestFragmentController.class })) {
             return parent instanceof TestPlan;
         }
 
@@ -620,7 +622,7 @@ public final class MenuFactory {
             return !foundClass(nodes, samplerAndController, exceptions);
         }
         // AbstractThreadGroup is only allowed under a TestPlan
-        if (foundClass(nodes, new Class[]{AbstractThreadGroup.class})) {
+        if (foundClass(nodes, new Class[] { AbstractThreadGroup.class })) {
             return false;
         }
 
@@ -631,7 +633,7 @@ public final class MenuFactory {
 
         // No Samplers and Controllers
         if (parent instanceof Sampler) {
-            return !foundClass(nodes, new Class[]{Sampler.class, Controller.class});
+            return !foundClass(nodes, new Class[] { Sampler.class, Controller.class });
         }
 
         // All other
@@ -641,7 +643,7 @@ public final class MenuFactory {
     /**
      * Is any of nodes an instance of one of the classes?
      *
-     * @param nodes Array of {@link JMeterTreeNode}
+     * @param nodes   Array of {@link JMeterTreeNode}
      * @param classes Array of {@link Class}
      * @return true if nodes is one of classes
      */
@@ -658,7 +660,8 @@ public final class MenuFactory {
 
     /**
      * Is any node an instance of one of the menu category?
-     * @param nodes Array of {@link JMeterTreeNode}
+     * 
+     * @param nodes    Array of {@link JMeterTreeNode}
      * @param category Category
      * @return true if nodes is in category
      */
@@ -671,8 +674,8 @@ public final class MenuFactory {
     /**
      * Is any node an instance of one of the classes, but not an exceptions?
      *
-     * @param nodes array of {@link JMeterTreeNode}
-     * @param classes Array of {@link Class}
+     * @param nodes      array of {@link JMeterTreeNode}
+     * @param classes    Array of {@link Class}
      * @param exceptions Array of {@link Class}
      * @return boolean
      */

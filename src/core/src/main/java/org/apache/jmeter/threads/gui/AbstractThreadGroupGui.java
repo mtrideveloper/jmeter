@@ -33,6 +33,7 @@ import javax.swing.JRadioButton;
 import org.apache.jmeter.gui.AbstractJMeterGuiComponent;
 import org.apache.jmeter.gui.action.ActionNames;
 import org.apache.jmeter.gui.action.ActionRouter;
+import org.apache.jmeter.gui.tree.JMeterTreeListener;
 import org.apache.jmeter.gui.util.MenuFactory;
 import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.testelement.TestElement;
@@ -53,7 +54,7 @@ public abstract class AbstractThreadGroupGui extends AbstractJMeterGuiComponent 
     private JRadioButton stopTestBox;
     private JRadioButton stopTestNowBox;
 
-    protected AbstractThreadGroupGui(){
+    protected AbstractThreadGroupGui() {
         super();
         init();
         initGui();
@@ -80,6 +81,7 @@ public abstract class AbstractThreadGroupGui extends AbstractJMeterGuiComponent 
 
         MenuFactory.addEditMenu(pop, true);
         MenuFactory.addFileMenu(pop, false);
+
         return pop;
     }
 
@@ -88,6 +90,7 @@ public abstract class AbstractThreadGroupGui extends AbstractJMeterGuiComponent 
         menuItem.setName(name);
         menuItem.addActionListener(ActionRouter.getInstance());
         menuItem.setActionCommand(actionCommand);
+
         return menuItem;
     }
 
@@ -117,12 +120,13 @@ public abstract class AbstractThreadGroupGui extends AbstractJMeterGuiComponent 
     }
 
     @Override
-    public void clearGui(){
+    public void clearGui() {
         super.clearGui();
         initGui();
     }
 
-    // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
+    // WARNING: called from ctor so must not be overridden (i.e. must be private or
+    // final)
     private void init() {
         setLayout(new BorderLayout(0, 5));
         setBorder(makeBorder());
@@ -207,7 +211,8 @@ public abstract class AbstractThreadGroupGui extends AbstractJMeterGuiComponent 
     @Override
     public void assignDefaultValues(TestElement element) {
         super.assignDefaultValues(element);
-        element.set(AbstractThreadGroupSchema.INSTANCE.getOnSampleError(), AbstractThreadGroup.ON_SAMPLE_ERROR_CONTINUE);
+        element.set(AbstractThreadGroupSchema.INSTANCE.getOnSampleError(),
+                AbstractThreadGroup.ON_SAMPLE_ERROR_CONTINUE);
     }
 
     @Override
@@ -224,12 +229,13 @@ public abstract class AbstractThreadGroupGui extends AbstractJMeterGuiComponent 
 
     /**
      * {@inheritDoc}
+     * 
      * @deprecated Override {@link #modifyTestElement(TestElement)} instead
      * @param tg the TestElement being configured.
      */
-   @Override
-   @Deprecated
-   @API(status = API.Status.DEPRECATED, since = "5.6.3")
+    @Override
+    @Deprecated
+    @API(status = API.Status.DEPRECATED, since = "5.6.3")
     protected void configureTestElement(TestElement tg) {
         super.configureTestElement(tg);
         tg.set(AbstractThreadGroupSchema.INSTANCE.getOnSampleError(), onSampleError());

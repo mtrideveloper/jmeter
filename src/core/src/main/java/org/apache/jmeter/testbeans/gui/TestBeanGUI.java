@@ -303,15 +303,16 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
      */
     @Override
     public void configure(TestElement element) {
+        //#region MTRI WAS HERE!
         if (!initialized){
             init();
             // It populates GUI_CLASS bean property which is used for icon display
             setupGuiClassesList();
         }
         clearGui();
-        super.configure(element);
-        setValues(element);
-        initialized = true;
+        super.configure(element); // Gọi lớp cha để nạp các thông tin cơ bản
+        setValues(element); // lấy các giá trị từ phần tử để điền vào propertyMap và thiết lập customizer
+        initialized = true; // đánh dấu GUI đã được khởi tạo
     }
 
     /**

@@ -56,7 +56,7 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
      * Constructor for the JMeterTreeListener object.
      *
      * @param model
-     *            The {@link JMeterTreeModel} for this listener
+     *              The {@link JMeterTreeModel} for this listener
      */
     public JMeterTreeListener(JMeterTreeModel model) {
         this.model = model;
@@ -70,6 +70,7 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 
     /**
      * Set the {@link JMeterTreeModel} for this listener
+     * 
      * @param m The {@link JMeterTreeModel} to be used
      */
     public void setModel(JMeterTreeModel m) {
@@ -80,7 +81,7 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
      * Sets the ActionHandler attribute of the JMeterTreeListener object.
      *
      * @param ah
-     *            the new ActionHandler value
+     *           the new ActionHandler value
      */
     public void setActionHandler(ActionListener ah) {
         actionHandler = ah;
@@ -90,7 +91,7 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
      * Sets the JTree attribute of the JMeterTreeListener object.
      *
      * @param tree
-     *            the new JTree value
+     *             the new JTree value
      */
     public void setJTree(JTree tree) {
         this.tree = tree;
@@ -244,9 +245,12 @@ public class JMeterTreeListener implements TreeSelectionListener, MouseListener,
 
     private void displayPopUp(MouseEvent e) {
         JPopupMenu pop = getCurrentNode().createPopupMenu();
-        // invokeLater ensures popup does not disappear when user right-clicks an inactive node
-        // In other words: right-click different nodes and verify if menu is shown every time.
-        // invokeLater seems to be required as long as tree.requestFocusInWindow(); is used
+        // invokeLater ensures popup does not disappear when user right-clicks an
+        // inactive node
+        // In other words: right-click different nodes and verify if menu is shown every
+        // time.
+        // invokeLater seems to be required as long as tree.requestFocusInWindow(); is
+        // used
         // in valueChanged
         SwingUtilities.invokeLater(() -> GuiPackage.getInstance().displayPopUp(e, pop));
     }
