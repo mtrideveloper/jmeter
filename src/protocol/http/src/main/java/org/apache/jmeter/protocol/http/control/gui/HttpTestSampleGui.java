@@ -19,7 +19,7 @@ package org.apache.jmeter.protocol.http.control.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Insets;
+import java.io.File;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -57,13 +57,16 @@ import net.miginfocom.swing.MigLayout;
 
 import java.text.NumberFormat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * HTTP Sampler GUI
  */
 @GUIMenuSortOrder(1)
 @TestElementMetadata(labelResource = "web_testing_title")
 public class HttpTestSampleGui extends AbstractSamplerGui {
-
+    private static final Logger log = LoggerFactory.getLogger(HttpTestSampleGui.class);
     private static final long serialVersionUID = 242L;
 
     private UrlConfigGui urlConfigGui;
@@ -92,6 +95,7 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
     // #region MTRI was here!
     private JFormattedTextField maxProxiesNumberField;
     private MtriCrapeHttpsProxies crapeButton;
+    private JButton locationButton;
 
     private final boolean isAJP;
 
@@ -287,6 +291,7 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
         connectTimeOut = new JTextField(10);
 
         JLabel label = new JLabel(JMeterUtils.getResString("web_server_timeout_connect")); // $NON-NLS-1$
+        label.setToolTipText(JMeterUtils.getResString("web_server_connect_timeout_tooltip"));
         label.setLabelFor(connectTimeOut);
 
         JPanel panel = new JPanel(new BorderLayout(5, 0));
@@ -300,6 +305,7 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
         responseTimeOut = new JTextField(10);
 
         JLabel label = new JLabel(JMeterUtils.getResString("web_server_timeout_response")); // $NON-NLS-1$
+        label.setToolTipText(JMeterUtils.getResString("web_server_response_timeout_tooltip"));
         label.setLabelFor(responseTimeOut);
 
         JPanel panel = new JPanel(new BorderLayout(5, 0));
@@ -415,6 +421,7 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
         concurrentPool.setEnabled(enable && !concurrentDwn.getValue().equals(JEditableCheckBox.Value.of(false)));
     }
 
+    // #region MTRI was here!
     /**
      * Create a panel containing the proxy server details
      *
@@ -428,7 +435,7 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
         proxyServer.add(getProxyPortPanel());
         proxyServer.add(getCrapeProxiesPanel()); // Nút Scrape
 
-        //  HÀNG DƯỚI 
+        // HÀNG DƯỚI
         JPanel proxyLogin = new HorizontalPanel();
         proxyLogin.setBorder(BorderFactory.createEmptyBorder(2, 20, 2, 2)); // giữ padding như cũ
         proxyLogin.add(getProxyUserPanel());
@@ -512,14 +519,15 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
     }
 
     private JPanel getCrapeProxiesPanel() {
-        crapeButton = new MtriCrapeHttpsProxies(JMeterUtils.getResString("crape_https_proxies")); // $NON-NLS-1$
-        JFactory.small(crapeButton);
+        crapeButton = new MtriCrapeHttpsProxies("Scrape");
+        crapeButton.setToolTipText(JMeterUtils.getResString("crape_https_proxies")); // $NON-NLS-1$
 
         NumberFormat format = NumberFormat.getIntegerInstance();
         maxProxiesNumberField = new JFormattedTextField(format);
         maxProxiesNumberField.setColumns(5);
+        maxProxiesNumberField.setToolTipText(JMeterUtils.getResString("max_proxies_to_scrape")); // $NON-NLS-1$
         // default value
-        maxProxiesNumberField.setValue(crapeButton.getMaxProxiesNumber());
+        maxProxiesNumberField.setValue(0);
 
         crapeButton.addActionListener(e -> {
             if (proxyHost == null || proxyPort == null) {
@@ -530,10 +538,27 @@ public class HttpTestSampleGui extends AbstractSamplerGui {
             crapeButton.setMaxProxiesNumber(Integer.parseInt(maxProxiesNumberField.getText()));
         });
 
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(crapeButton, BorderLayout.WEST);
-        panel.add(maxProxiesNumberField, BorderLayout.CENTER);
+        locationButton = new JButton("Location");
+        locationButton.setToolTipText(JMeterUtils.getResString("proxy_open_location_tooltip")); // $NON-NLS-1$
+        locationButton.addActionListener(e -> {
+            String dirPath = crapeButton.getDirectoryPath();
 
+            try {
+                File outputDir = new File(dirPath);
+                if (!outputDir.exists()) {
+                    outputDir.mkdirs();
+                }
+                java.awt.Desktop.getDesktop().open(outputDir);
+            } catch (Exception ex) {
+                log.error("Error opening directory: " + dirPath, ex);
+                System.err.println("Error opening directory: " + dirPath);
+            }
+        });
+        // JPanel panel = new JPanel(new BorderLayout(5, 0));
+        JPanel panel =  new HorizontalPanel();
+        panel.add(locationButton);
+        panel.add(crapeButton);
+        panel.add(maxProxiesNumberField);
         return panel;
     }
 }

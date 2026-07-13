@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 
 public class MtriCrapeHttpsProxies extends JButton {
     private static final Logger log = LoggerFactory.getLogger(MtriCrapeHttpsProxies.class);
-    private static final String FILE_NAME = "https_proxies.txt"; // csv bị chặn truy cập
-    private static final String OUTPUT_DIR = "D:/Dai-hoc/internship/jmeter/proxies";
 
     /// field variables
     private static final String FILENAME = "filename"; //$NON-NLS-1$
@@ -38,23 +36,27 @@ public class MtriCrapeHttpsProxies extends JButton {
     private static final String QUOTED_DATA = "quotedData"; //$NON-NLS-1$
     private static final String SHAREMODE = "shareMode"; //$NON-NLS-1$
 
+    private static final String FILE_NAME = "csv_https_proxies.txt"; // csv bị chặn truy cập
+    private static final String OUTPUT_DIR = "D:/Dai-hoc/internship/jmeter/proxies"; // xem xét _<time>
+
     /**
-     * Nơi lưu file = nơi chạy ApacheJMeter.jar + /proxies/https_proxies.txt
-     * vd: [root_project]/bin/proxies/https_proxies.txt
+     * Nơi lưu file = nơi chạy ApacheJMeter.jar + /proxies/csv_https_proxies.txt
+     * vd: [root_project]/bin/proxies/csv_https_proxies.txt
      */
     // private static final String OUTPUT_DIR = "proxies";
 
     /**
-     * Số lượng proxy tối đa để scrape
+     * Số lượng proxy tối đa để scrape.
+     * Mặc định 0, tức là không cho phép scrape.
      */
-    private int maxProxiesNumber = 20;
+    private int maxProxiesNumber = 0;
 
     public void setMaxProxiesNumber(int maxProxiesNumber) {
         this.maxProxiesNumber = maxProxiesNumber;
     }
 
-    public int getMaxProxiesNumber() {
-        return maxProxiesNumber;
+    public String getDirectoryPath() {
+        return OUTPUT_DIR;
     }
 
     public MtriCrapeHttpsProxies(String text) {
@@ -166,6 +168,15 @@ public class MtriCrapeHttpsProxies extends JButton {
 
     private static void addCSVDataSet(JMeterTreeNode parentNode, GuiPackage guiPackage) {
         try {
+            JMeterTreeModel treeModel = guiPackage.getTreeModel();
+            JMeterTreeNode childNode = (JMeterTreeNode) parentNode.getChildAt(0);
+            Object userObject = childNode.getUserObject();
+            // Hoặc
+            // if ("CSV Data Set Config (HTTPS Proxies)".equals(((CSVDataSet)
+            // userObject).getName()))
+            if (userObject instanceof CSVDataSet) {
+                treeModel.removeNodeFromParent(childNode); // xóa node child
+            }
 
             CSVDataSet csv = new CSVDataSet();
             csv.setName("CSV Data Set Config (HTTPS Proxies)");
@@ -182,7 +193,6 @@ public class MtriCrapeHttpsProxies extends JButton {
             csv.setProperty(STOPTHREAD, false);
             csv.setProperty(SHAREMODE, "shareMode.all");
 
-            JMeterTreeModel treeModel = guiPackage.getTreeModel();
             // Thêm component vào tree
             JMeterTreeNode newNode = treeModel.addComponent(csv, parentNode);
             // set UserObject cho node chứa CSVDataSet
@@ -197,7 +207,8 @@ public class MtriCrapeHttpsProxies extends JButton {
             // 1. Đặt đường dẫn được chọn trên JTree thành Node mới tạo
             TreePath newPath = new TreePath(newNode.getPath());
             jTree.setSelectionPath(newPath);
-            // // 2. Ép GuiPackage cập nhật và hiển thị Panel giao diện tương ứng của Node mới
+            // // 2. Ép GuiPackage cập nhật và hiển thị Panel giao diện tương ứng của Node
+            // mới
             // guiPackage.updateCurrentNode();
 
         } catch (Exception ex) {
@@ -208,7 +219,7 @@ public class MtriCrapeHttpsProxies extends JButton {
     private static void saveCSVFile(java.util.List<MyProxy> proxies) {
         try {
             // 1. Tạo folder proxies trong thư mục hiện tại của JMeter
-            File outputDir = new File(OUTPUT_DIR); // folder "proxies" cạnh file jmx
+            File outputDir = new File(OUTPUT_DIR);
 
             if (!outputDir.exists()) {
                 outputDir.mkdirs();

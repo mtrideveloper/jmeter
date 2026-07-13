@@ -351,3 +351,10 @@ BorderLayout.AFTER_LINE_ENDS,After line ends,Cũ
 ```
 
 #### Cơ bản làm xong chức năng cào proxy tự động
+
+## 12/07/26
+1. Thêm tooltip cho Connect và Response timeout
+2. Thêm HTTPS Proxies Scrape cho HTTP Request Defaults
+3. Thêm tooltip cho các component trong Proxy Server
+4. Thêm nút Open file location.., nơi chứa file csv_https_proxies.txt
+5. Xóa csv data set config https proxies cũ khi cào proxy thành công

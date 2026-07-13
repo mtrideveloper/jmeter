@@ -19,10 +19,14 @@ package org.apache.jmeter.protocol.http.config.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.File;
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -31,6 +35,7 @@ import javax.swing.JTextField;
 
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.config.mtri.MtriCrapeHttpsProxies;
 import org.apache.jmeter.gui.GUIMenuSortOrder;
 import org.apache.jmeter.gui.JBooleanPropertyEditor;
 import org.apache.jmeter.gui.JTextComponentBinding;
@@ -49,13 +54,16 @@ import org.apache.jorphan.util.StringUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * GUI for Http Request defaults
  */
 @GUIMenuSortOrder(5)
 @TestElementMetadata(labelResource = "url_config_title")
 public class HttpDefaultsGui extends AbstractConfigGui {
-
+    private static final Logger log = LoggerFactory.getLogger(HttpDefaultsGui.class);
     private static final long serialVersionUID = 242L;
 
     private UrlConfigGui urlConfigGui;
@@ -81,6 +89,10 @@ public class HttpDefaultsGui extends AbstractConfigGui {
     private final JComboBox<String> httpImplementation = new JComboBox<>(HTTPSamplerFactory.getImplementations());
     private JTextField connectTimeOut;
     private JTextField responseTimeOut;
+    // #region MTRI was here!
+    private JFormattedTextField maxProxiesNumberField;
+    private MtriCrapeHttpsProxies crapeButton;
+    private JButton locationButton;
 
     public HttpDefaultsGui() {
         super();
@@ -103,9 +115,7 @@ public class HttpDefaultsGui extends AbstractConfigGui {
                         new JTextComponentBinding(proxyPass, schema.getProxy().getPassword()),
                         // TODO: httpImplementation
                         new JTextComponentBinding(connectTimeOut, schema.getConnectTimeout()),
-                        new JTextComponentBinding(responseTimeOut, schema.getResponseTimeout())
-                )
-        );
+                        new JTextComponentBinding(responseTimeOut, schema.getResponseTimeout())));
     }
 
     @Override
@@ -136,11 +146,14 @@ public class HttpDefaultsGui extends AbstractConfigGui {
 
         HTTPSamplerBaseSchema httpSchema = HTTPSamplerBaseSchema.INSTANCE;
         if (concurrentDwn.getValue().equals(JEditableCheckBox.Value.of(false))) {
-            // Even though we remove "concurrent download pool size" if the checkbox was unchecked,
-            // we do it on purpose otherwise "merging defaults to regular http sampler" would unexpectedly
+            // Even though we remove "concurrent download pool size" if the checkbox was
+            // unchecked,
+            // we do it on purpose otherwise "merging defaults to regular http sampler"
+            // would unexpectedly
             // override "concurrent download pool size" value
-            // TODO: keep "concurrent download pool size" in defaults, however somehow remove it before merging config
-            //   to the http sampler
+            // TODO: keep "concurrent download pool size" in defaults, however somehow
+            // remove it before merging config
+            // to the http sampler
             config.removeProperty(httpSchema.getConcurrentDownloadPoolSize());
         }
 
@@ -171,7 +184,8 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         httpImplementation.setSelectedItem(samplerBase.getString(httpSchema.getImplementation()));
     }
 
-    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
+    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or
+                          // final)
         setLayout(new BorderLayout(0, 5));
         setBorder(makeBorder());
 
@@ -219,6 +233,7 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         connectTimeOut = new JTextField(10);
 
         JLabel label = new JLabel(JMeterUtils.getResString("web_server_timeout_connect")); // $NON-NLS-1$
+        label.setToolTipText(JMeterUtils.getResString("web_server_connect_timeout_tooltip"));
         label.setLabelFor(connectTimeOut);
 
         JPanel panel = new JPanel(new BorderLayout(5, 0));
@@ -232,6 +247,7 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         responseTimeOut = new JTextField(10);
 
         JLabel label = new JLabel(JMeterUtils.getResString("web_server_timeout_response")); // $NON-NLS-1$
+        label.setToolTipText(JMeterUtils.getResString("web_server_response_timeout_tooltip"));
         label.setLabelFor(responseTimeOut);
 
         JPanel panel = new JPanel(new BorderLayout(5, 0));
@@ -263,10 +279,12 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         embeddedRsrcPanel.add(concurrentPool, "wrap");
 
         // Embedded URL match regex to allow
-        embeddedAllowRE = addTextFieldWithLabel(embeddedRsrcPanel, JMeterUtils.getResString("web_testing_embedded_url_pattern")); // $NON-NLS-1$
+        embeddedAllowRE = addTextFieldWithLabel(embeddedRsrcPanel,
+                JMeterUtils.getResString("web_testing_embedded_url_pattern")); // $NON-NLS-1$
 
         // Embedded URL match regex to exclude
-        embeddedExcludeRE = addTextFieldWithLabel(embeddedRsrcPanel, JMeterUtils.getResString("web_testing_embedded_url_exclude_pattern")); // $NON-NLS-1$
+        embeddedExcludeRE = addTextFieldWithLabel(embeddedRsrcPanel,
+                JMeterUtils.getResString("web_testing_embedded_url_exclude_pattern")); // $NON-NLS-1$
 
         return embeddedRsrcPanel;
     }
@@ -286,7 +304,7 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         sourceAddrPanel.setBorder(BorderFactory.createTitledBorder(
                 JMeterUtils.getResString("web_testing_source_ip"))); // $NON-NLS-1$
 
-        sourceIpType.setSelectedIndex(HTTPSamplerBase.SourceType.HOSTNAME.ordinal()); //default: IP/Hostname
+        sourceIpType.setSelectedIndex(HTTPSamplerBase.SourceType.HOSTNAME.ordinal()); // default: IP/Hostname
         sourceAddrPanel.add(sourceIpType);
 
         sourceIpAddr = new JTextField();
@@ -313,7 +331,8 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         concurrentDwn.setEnabled(enable);
         embeddedAllowRE.setEnabled(enable);
         embeddedExcludeRE.setEnabled(enable);
-        // Allow editing the pool size if "download concurrently" checkbox is set or has expression
+        // Allow editing the pool size if "download concurrently" checkbox is set or has
+        // expression
         concurrentPool.setEnabled(enable && !concurrentDwn.getValue().equals(JEditableCheckBox.Value.of(false)));
     }
 
@@ -322,7 +341,7 @@ public class HttpDefaultsGui extends AbstractConfigGui {
      *
      * @return the panel
      */
-    protected final JPanel getImplementationPanel(){
+    protected final JPanel getImplementationPanel() {
         JPanel implPanel = new HorizontalPanel();
         implPanel.setBorder(BorderFactory.createTitledBorder(
                 JMeterUtils.getResString("web_server_client"))); // $NON-NLS-1$
@@ -332,26 +351,33 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         return implPanel;
     }
 
+    // #region MTRI was here!
     /**
      * Create a panel containing the proxy server details
      *
      * @return the panel
      */
-    protected final JPanel getProxyServerPanel(){
-        JPanel proxyServer = new HorizontalPanel();
-        proxyServer.add(getProxySchemePanel(), BorderLayout.WEST);
-        proxyServer.add(getProxyHostPanel(), BorderLayout.CENTER);
-        proxyServer.add(getProxyPortPanel(), BorderLayout.EAST);
+    protected final JPanel getProxyServerPanel() {
+        // HÀNG TRÊN
+        JPanel proxyServer = new HorizontalPanel(); // hoặc new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0))
+        proxyServer.add(getProxySchemePanel());
+        proxyServer.add(getProxyHostPanel());
+        proxyServer.add(getProxyPortPanel());
+        proxyServer.add(getCrapeProxiesPanel()); // Nút Scrape
 
+        // HÀNG DƯỚI
         JPanel proxyLogin = new HorizontalPanel();
+        proxyLogin.setBorder(BorderFactory.createEmptyBorder(2, 20, 2, 2)); // giữ padding như cũ
         proxyLogin.add(getProxyUserPanel());
         proxyLogin.add(getProxyPassPanel());
 
         JPanel proxyServerPanel = new HorizontalPanel();
         proxyServerPanel.setBorder(BorderFactory.createTitledBorder(
                 JMeterUtils.getResString("web_proxy_server_title"))); // $NON-NLS-1$
-        proxyServerPanel.add(proxyServer);
-        proxyServerPanel.add(proxyLogin);
+        proxyServerPanel.setToolTipText(JMeterUtils.getResString("web_proxy_server_tooltip")); // $NON-NLS-1$
+
+        proxyServerPanel.add(proxyServer, BorderLayout.NORTH); // Hàng trên
+        proxyServerPanel.add(proxyLogin, BorderLayout.CENTER); // Hàng dưới
 
         return proxyServerPanel;
     }
@@ -419,6 +445,50 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         JPanel panel = new JPanel(new BorderLayout(5, 0));
         panel.add(label, BorderLayout.WEST);
         panel.add(proxyPass, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel getCrapeProxiesPanel() {
+        crapeButton = new MtriCrapeHttpsProxies("Scrape");
+        crapeButton.setToolTipText(JMeterUtils.getResString("crape_https_proxies")); // $NON-NLS-1$
+
+        NumberFormat format = NumberFormat.getIntegerInstance();
+        maxProxiesNumberField = new JFormattedTextField(format);
+        maxProxiesNumberField.setColumns(5);
+        maxProxiesNumberField.setToolTipText(JMeterUtils.getResString("max_proxies_to_scrape")); // $NON-NLS-1$
+        // default value
+        maxProxiesNumberField.setValue(0);
+
+        crapeButton.addActionListener(e -> {
+            if (proxyHost == null || proxyPort == null) {
+                return;
+            }
+            proxyHost.setText(JMeterUtils.getResString("proxy_ip_variable"));
+            proxyPort.setText(JMeterUtils.getResString("proxy_port_variable"));
+            crapeButton.setMaxProxiesNumber(Integer.parseInt(maxProxiesNumberField.getText()));
+        });
+
+        locationButton = new JButton("Location");
+        locationButton.setToolTipText(JMeterUtils.getResString("proxy_open_location_tooltip")); // $NON-NLS-1$
+        locationButton.addActionListener(e -> {
+            String dirPath = crapeButton.getDirectoryPath();
+            try {
+                File outputDir = new File(dirPath);
+                if (!outputDir.exists()) {
+                    outputDir.mkdirs();
+                }
+                java.awt.Desktop.getDesktop().open(outputDir);
+            } catch (Exception ex) {
+                log.error("Error opening directory: " + dirPath, ex);
+            }
+        });
+
+        // JPanel panel = new JPanel(new BorderLayout(5, 0));
+        JPanel panel = new HorizontalPanel();
+        panel.add(locationButton);
+        panel.add(crapeButton);
+        panel.add(maxProxiesNumberField);
+
         return panel;
     }
 }
