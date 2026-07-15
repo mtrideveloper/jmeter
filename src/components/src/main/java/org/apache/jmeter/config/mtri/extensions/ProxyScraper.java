@@ -1,6 +1,7 @@
 package org.apache.jmeter.config.mtri.extensions;
 
 import org.apache.jmeter.config.mtri.model.MyProxy;
+import org.apache.jmeter.config.mtri.util.MyConstant;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,9 +14,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class ProxyScraper {
-        private static final Logger log = LoggerFactory.getLogger(ProxyScraper.class);
-    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
-    private static final String PROXY_SOURCE = "https://free-proxy-list.net/en/ssl-proxy.html";
+    private static final Logger log = LoggerFactory.getLogger(ProxyScraper.class);
 
     public List<MyProxy> scrapeProxies(int maxProxies) {
         List<MyProxy> allProxies = new ArrayList<>();
@@ -30,14 +29,14 @@ public class ProxyScraper {
 
         List<Future<List<MyProxy>>> futures = new ArrayList<>();
         futures.add(executor.submit(() -> {
-            return scrapeFromSource(PROXY_SOURCE, maxProxies);
+            return scrapeFromSource(MyConstant.PROXY_SOURCE, maxProxies);
         }));
 
         for (Future<List<MyProxy>> future : futures) {
             try {
                 allProxies.addAll(future.get(15, TimeUnit.SECONDS));
             } catch (Exception e) {
-                log.error("Exception occurred while scraping " + PROXY_SOURCE + ": " + e.getMessage());
+                log.error("Exception occurred while scraping " + MyConstant.PROXY_SOURCE + ": " + e.getMessage());
             }
         }
 
@@ -50,8 +49,8 @@ public class ProxyScraper {
         try {
             log.info("Scraping: " + url);
             Document doc = Jsoup.connect(url)
-                    .userAgent(USER_AGENT)
-                    .timeout(15000)
+                    .userAgent(MyConstant.USER_AGENT)
+                    .timeout(MyConstant.TIMEOUT)
                     .get();
 
             // 1. Khởi tạo index mặc định theo cấu trúc ảnh
@@ -94,7 +93,7 @@ public class ProxyScraper {
                     String ip = tdList.get(ipIndex).text().trim();
                     String port = tdList.get(portIndex).text().trim();
                     String https = tdList.get(httpsIndex).text().trim();
-                    
+
                     if (proxies.size() >= maxProxies) {
                         break; // Dừng khi đủ proxy
                     }

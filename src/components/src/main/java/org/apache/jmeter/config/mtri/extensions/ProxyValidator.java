@@ -5,16 +5,12 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import org.apache.jmeter.config.mtri.model.MyProxy;
-
+import org.apache.jmeter.config.mtri.util.MyConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProxyValidator {
     private static final Logger log = LoggerFactory.getLogger(ProxyValidator.class);
-
-    private static final String TEST_URL = "https://api.ipify.org";
-    private static final int MAX_CONCURRENT = 20;
-    private static final int TIMEOUT = 15000;
 
     public List<MyProxy> validateProxies(List<MyProxy> proxies) {
         if (proxies.isEmpty()) {
@@ -24,7 +20,7 @@ public class ProxyValidator {
         log.info("Starting validation of " + proxies.size() + " proxy...");
         List<MyProxy> aliveProxies = Collections.synchronizedList(new ArrayList<>());
 
-        ExecutorService executor = Executors.newFixedThreadPool(MAX_CONCURRENT);
+        ExecutorService executor = Executors.newFixedThreadPool(MyConstant.MAX_CONCURRENT);
         List<Future<?>> futures = new ArrayList<>();
 
         try {
@@ -42,7 +38,7 @@ public class ProxyValidator {
             // Đợi tất cả task hoàn thành
             for (Future<?> future : futures) {
                 try {
-                    future.get(TIMEOUT + 1000, TimeUnit.MILLISECONDS);
+                    future.get(MyConstant.TIMEOUT + 1000, TimeUnit.MILLISECONDS);
                 } catch (Exception e) {
                     log.error("Exception occurred while validating proxy: " + e.getMessage());
                 }
@@ -58,7 +54,7 @@ public class ProxyValidator {
     private static boolean testProxy(MyProxy proxy) {
         HttpURLConnection connection = null;
         try {
-            URL url = new URL(TEST_URL);
+            URL url = new URL(MyConstant.TEST_URL);
             
             java.net.Proxy javaProxy = new java.net.Proxy(
                 java.net.Proxy.Type.HTTP,
@@ -67,8 +63,8 @@ public class ProxyValidator {
 
             connection = (HttpURLConnection) url.openConnection(javaProxy);
             
-            connection.setConnectTimeout(TIMEOUT);
-            connection.setReadTimeout(TIMEOUT);
+            connection.setConnectTimeout(MyConstant.TIMEOUT);
+            connection.setReadTimeout(MyConstant.TIMEOUT);
             connection.setRequestMethod("GET");
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
             connection.setInstanceFollowRedirects(true);

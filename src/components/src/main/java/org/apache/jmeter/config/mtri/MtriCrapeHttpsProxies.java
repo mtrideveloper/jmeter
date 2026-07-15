@@ -118,7 +118,7 @@ public class MtriCrapeHttpsProxies extends JButton {
                         // lấy từ tham số 1 của SwingWorker
                         java.util.List<MyProxy> aliveProxies = get();
                         if (aliveProxies != null && !aliveProxies.isEmpty()) {
-                            addCSVDataSet(currentNode, guiPackage);
+                            addCSVDataSet(guiPackage);
                             JOptionPane.showMessageDialog(guiPackage.getMainFrame(),
                                     "Hoàn thành! Tìm thấy " + aliveProxies.size() + " proxy sống.",
                                     "Thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -166,23 +166,40 @@ public class MtriCrapeHttpsProxies extends JButton {
         return dialog;
     }
 
-    private static void addCSVDataSet(JMeterTreeNode parentNode, GuiPackage guiPackage) {
+    private static void addCSVDataSet(GuiPackage guiPackage) {
         try {
             JMeterTreeModel treeModel = guiPackage.getTreeModel();
-            JMeterTreeNode childNode = (JMeterTreeNode) parentNode.getChildAt(0);
-            Object userObject = childNode.getUserObject();
-            // Hoặc
-            // if ("CSV Data Set Config (HTTPS Proxies)".equals(((CSVDataSet)
-            // userObject).getName()))
-            if (userObject instanceof CSVDataSet) {
-                treeModel.removeNodeFromParent(childNode); // xóa node child
+
+            // Tìm node Test Plan gốc (cấp cao nhất)
+            JMeterTreeNode testPlanNode = (JMeterTreeNode) treeModel.getRoot();
+            // root của treeModel thường chứa TestPlanNode ở vị trí đầu tiên
+            if (testPlanNode.getChildCount() > 0) {
+                testPlanNode = (JMeterTreeNode) testPlanNode.getChildAt(0);
             }
 
+            // Duyệt qua các con của Test Plan để tìm và 
+            // xóa node cũ nếu trùng tên
+            for (int i = 0; i < testPlanNode.getChildCount(); i++) {
+                JMeterTreeNode childNode = (JMeterTreeNode) testPlanNode.getChildAt(i);
+                Object userObject = childNode.getUserObject();
+                // child node là csv data set config
+                if (userObject instanceof CSVDataSet existingCsv) {
+                    // Kiểm tra đúng tên để tránh xóa nhầm các 
+                    // CSV Data Set Config khác nằm ở cấp Test Plan
+                    if ("CSV Data Set Config (HTTPS Proxies)".equals(existingCsv.getName())) {
+                        treeModel.removeNodeFromParent(childNode);
+                        i--; // Giảm chỉ số i vì phần tử đã bị xóa, danh sách con bị dịch lên
+                    }
+                }
+            }
+
+            // Khởi tạo đối tượng CSVDataSet mới
             CSVDataSet csv = new CSVDataSet();
             csv.setName("CSV Data Set Config (HTTPS Proxies)");
             csv.setProperty(ConfigTestElement.GUI_CLASS, "org.apache.jmeter.testbeans.gui.TestBeanGUI");
             csv.setProperty(ConfigTestElement.TEST_CLASS, CSVDataSet.class.getName());
 
+            // Cấu hình các thuộc tính
             csv.setProperty(FILENAME, OUTPUT_DIR + "/" + FILE_NAME);
             csv.setProperty(FILE_ENCODING, Charset.defaultCharset().name());
             csv.setProperty(VARIABLE_NAMES, "proxy_ip,proxy_port");
@@ -191,28 +208,34 @@ public class MtriCrapeHttpsProxies extends JButton {
             csv.setProperty(QUOTED_DATA, false);
             csv.setProperty(RECYCLE, true);
             csv.setProperty(STOPTHREAD, false);
-            csv.setProperty(SHAREMODE, "shareMode.all");
+            csv.setProperty(SHAREMODE, "shareMode.all"); // Giữ nguyên chia sẻ toàn cục cho tất cả Thread Groups
 
-            // Thêm component vào tree
-            JMeterTreeNode newNode = treeModel.addComponent(csv, parentNode);
-            // set UserObject cho node chứa CSVDataSet
+            // Thêm component vào dưới node Test Plan
+            // addComponent tự động bọc đối tượng vào một JMeterTreeNode mới và thêm vào
+            // treeModel
+            JMeterTreeNode newNode = treeModel.addComponent(csv, testPlanNode);
             newNode.setUserObject(csv);
-            // Cập nhật tree
-            treeModel.nodeStructureChanged(parentNode);
 
-            // lấy JTree từ GuiPackage
+            // Cập nhật cấu trúc cây tại vị trí Test Plan
+            treeModel.nodeStructureChanged(testPlanNode);
+
+            // Đồng bộ và cập nhật hiển thị trên giao diện JTree công cụ
             JTree jTree = guiPackage.getTreeListener().getJTree();
-            // Expand node cha
-            jTree.expandPath(new TreePath(parentNode.getPath()));
-            // 1. Đặt đường dẫn được chọn trên JTree thành Node mới tạo
-            TreePath newPath = new TreePath(newNode.getPath());
-            jTree.setSelectionPath(newPath);
-            // // 2. Ép GuiPackage cập nhật và hiển thị Panel giao diện tương ứng của Node
-            // mới
+
+            // Expand node Test Plan để thấy node mới tạo
+            jTree.expandPath(new TreePath(testPlanNode.getPath()));
+
+            // // Focus (Chọn) vào Node mới tạo
+            // TreePath newPath = new TreePath(newNode.getPath());
+            // jTree.setSelectionPath(newPath);
+
+            // // Cập nhật GUI để hiển thị node mới thêm vào
+            // jTree.updateUI();
+            // // hoặc
             // guiPackage.updateCurrentNode();
 
         } catch (Exception ex) {
-            log.error("Failed to add CSVDataSet", ex);
+            log.error("Failed to add CSVDataSet to Test Plan level", ex);
         }
     }
 

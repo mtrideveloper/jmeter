@@ -358,3 +358,6 @@ BorderLayout.AFTER_LINE_ENDS,After line ends,Cũ
 3. Thêm tooltip cho các component trong Proxy Server
 4. Thêm nút Open file location.., nơi chứa file csv_https_proxies.txt
 5. Xóa csv data set config https proxies cũ khi cào proxy thành công
+
+## 150726
+1. Thay đổi addCSVDataSet từ tạo csv data set config - (https proxies) làm con của 1 sampler sang tạo ở cấp cao nhất (con của Test Plan)
