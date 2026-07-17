@@ -14,11 +14,14 @@ import java.nio.file.Files;
 import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.gui.tree.JMeterTreeModel;
 import org.apache.jmeter.gui.tree.JMeterTreeNode;
+import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.config.mtri.extensions.ProxyScraper;
 import org.apache.jmeter.config.mtri.extensions.ProxyValidator;
 import org.apache.jmeter.config.mtri.model.MyProxy;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.threads.ThreadGroup;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,9 +121,10 @@ public class MtriCrapeHttpsProxies extends JButton {
                         // lấy từ tham số 1 của SwingWorker
                         java.util.List<MyProxy> aliveProxies = get();
                         if (aliveProxies != null && !aliveProxies.isEmpty()) {
-                            addCSVDataSet(guiPackage);
+                            addCSVDataSet(guiPackage, aliveProxies.size());
                             JOptionPane.showMessageDialog(guiPackage.getMainFrame(),
-                                    "Hoàn thành! Tìm thấy " + aliveProxies.size() + " proxy sống.",
+                                    "Tìm thấy " + aliveProxies.size() + " proxy sống. Đã cập nhật Threads = Ramp-Up = "
+                                            + aliveProxies.size(),
                                     "Thành công", JOptionPane.INFORMATION_MESSAGE);
                             // lưu file
                             saveCSVFile(aliveProxies);
@@ -146,7 +150,7 @@ public class MtriCrapeHttpsProxies extends JButton {
     }
 
     private static JDialog createProgressDialog(Frame owner) {
-        JDialog dialog = new JDialog(owner, "Đang scrape HTTPS Proxies...", true); // true = modal
+        JDialog dialog = new JDialog(owner, "Scraping HTTPS Proxies...", true); // true = modal
         dialog.setSize(400, 150);
         dialog.setLocationRelativeTo(owner);
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -166,7 +170,7 @@ public class MtriCrapeHttpsProxies extends JButton {
         return dialog;
     }
 
-    private static void addCSVDataSet(GuiPackage guiPackage) {
+    private static void addCSVDataSet(GuiPackage guiPackage, int aliveProxies) {
         try {
             JMeterTreeModel treeModel = guiPackage.getTreeModel();
 
@@ -177,18 +181,21 @@ public class MtriCrapeHttpsProxies extends JButton {
                 testPlanNode = (JMeterTreeNode) testPlanNode.getChildAt(0);
             }
 
-            // Duyệt qua các con của Test Plan để tìm và 
-            // xóa node cũ nếu trùng tên
-            for (int i = 0; i < testPlanNode.getChildCount(); i++) {
+            // Duyệt qua các con của Test Plan để tìm
+            // và xóa node cũ nếu trùng tên
+            for (int i = testPlanNode.getChildCount() - 1; i >= 0; i--) {
                 JMeterTreeNode childNode = (JMeterTreeNode) testPlanNode.getChildAt(i);
                 Object userObject = childNode.getUserObject();
                 // child node là csv data set config
                 if (userObject instanceof CSVDataSet existingCsv) {
-                    // Kiểm tra đúng tên để tránh xóa nhầm các 
+                    // Kiểm tra đúng tên để tránh xóa nhầm các
                     // CSV Data Set Config khác nằm ở cấp Test Plan
                     if ("CSV Data Set Config (HTTPS Proxies)".equals(existingCsv.getName())) {
                         treeModel.removeNodeFromParent(childNode);
-                        i--; // Giảm chỉ số i vì phần tử đã bị xóa, danh sách con bị dịch lên
+                        // duyệt ngược danh sách để tránh lỗi ConcurrentModificationException
+                        // vd: [a 0, b 1, c 2] -> remove b -> [a 0, c 1] -> i-- là = 0
+                        // -> không ảnh hưởng
+                        // hoặc tạo 1 list các node cần xóa trước
                     }
                 }
             }
@@ -208,7 +215,7 @@ public class MtriCrapeHttpsProxies extends JButton {
             csv.setProperty(QUOTED_DATA, false);
             csv.setProperty(RECYCLE, true);
             csv.setProperty(STOPTHREAD, false);
-            csv.setProperty(SHAREMODE, "shareMode.all"); // Giữ nguyên chia sẻ toàn cục cho tất cả Thread Groups
+            csv.setProperty(SHAREMODE, "shareMode.all"); // chia sẻ toàn cục cho tất cả test element
 
             // Thêm component vào dưới node Test Plan
             // addComponent tự động bọc đối tượng vào một JMeterTreeNode mới và thêm vào
@@ -216,16 +223,19 @@ public class MtriCrapeHttpsProxies extends JButton {
             JMeterTreeNode newNode = treeModel.addComponent(csv, testPlanNode);
             newNode.setUserObject(csv);
 
+            // Tìm và cập nhật ThreadGroup (cập nhật số threads + ramp-up)
+            updateThreadGroups(testPlanNode, aliveProxies);
+
+            JTree jTree = guiPackage.getTreeListener().getJTree();
+            TreePath previousPath = jTree.getSelectionPath();
+
             // Cập nhật cấu trúc cây tại vị trí Test Plan
             treeModel.nodeStructureChanged(testPlanNode);
 
-            // Đồng bộ và cập nhật hiển thị trên giao diện JTree công cụ
-            JTree jTree = guiPackage.getTreeListener().getJTree();
+            // đứng yên tại chỗ đã crape
+            jTree.setSelectionPath(previousPath);
 
-            // Expand node Test Plan để thấy node mới tạo
-            jTree.expandPath(new TreePath(testPlanNode.getPath()));
-
-            // // Focus (Chọn) vào Node mới tạo
+            // // Focus vào Node mới tạo
             // TreePath newPath = new TreePath(newNode.getPath());
             // jTree.setSelectionPath(newPath);
 
@@ -274,6 +284,53 @@ public class MtriCrapeHttpsProxies extends JButton {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    public final void updateInputField(JTextField proxyHost, JTextField proxyPort, JTextField maxProxiesNumberField) {
+        this.addActionListener(e -> {
+            if (proxyHost == null || proxyPort == null) {
+                return;
+            }
+            proxyHost.setText(JMeterUtils.getResString("proxy_ip_variable"));
+            proxyPort.setText(JMeterUtils.getResString("proxy_port_variable"));
+            this.setMaxProxiesNumber(Integer.parseInt(maxProxiesNumberField.getText()));
+        });
+    }
+
+    private static void updateThreadGroups(
+            JMeterTreeNode parentNode,
+            int aliveProxies) {
+
+        for (int i = 0; i < parentNode.getChildCount(); i++) {
+            JMeterTreeNode child = (JMeterTreeNode) parentNode.getChildAt(i);
+            Object userObject = child.getUserObject();
+
+            if (userObject instanceof ThreadGroup threadGroup) {
+                // Cập nhật số threads = aliveProxies
+                // Cập nhật threads = ramp-up
+                int value = Math.max(1, aliveProxies);
+                threadGroup.setNumThreads(value);
+                // Ramp-up
+                threadGroup.setRampUp(value);
+
+                // // Refresh GUI của ThreadGroup nếu đang mở
+                // JMeterGUIComponent gui = GuiPackage.getInstance().getGui(threadGroup);
+                // if (gui != null) {
+                // gui.configure(threadGroup); // Cập nhật lại giao diện
+                // }
+
+                log.info("Updated ThreadGroup '{}' : threads={}, ramp-up={}",
+                        threadGroup.getName(), value, value);
+                System.out.println("Updated ThreadGroup '" + threadGroup.getName() + "' : threads=" + value
+                        + ", ramp-up=" + value);
+            }
+
+            // // Đệ quy nếu muốn tìm sâu hơn (nếu ThreadGroup nằm trong Controller khác)
+            // if (child.getChildCount() > 0) {
+            // updateThreadGroups(treeModel, child, maxProxies);
+            // }
+        }
+    }
+
     // private void addCSVDataSet(
     // JMeterTreeNode currentNode,
     // java.util.List<MyProxy> aliveProxies, GuiPackage guiPackage) {

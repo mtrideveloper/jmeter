@@ -459,14 +459,7 @@ public class HttpDefaultsGui extends AbstractConfigGui {
         // default value
         maxProxiesNumberField.setValue(0);
 
-        crapeButton.addActionListener(e -> {
-            if (proxyHost == null || proxyPort == null) {
-                return;
-            }
-            proxyHost.setText(JMeterUtils.getResString("proxy_ip_variable"));
-            proxyPort.setText(JMeterUtils.getResString("proxy_port_variable"));
-            crapeButton.setMaxProxiesNumber(Integer.parseInt(maxProxiesNumberField.getText()));
-        });
+        crapeButton.updateInputField(proxyHost, proxyPort, maxProxiesNumberField);
 
         locationButton = new JButton("Location");
         locationButton.setToolTipText(JMeterUtils.getResString("proxy_open_location_tooltip")); // $NON-NLS-1$

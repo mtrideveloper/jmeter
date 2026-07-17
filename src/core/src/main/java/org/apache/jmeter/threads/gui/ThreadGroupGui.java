@@ -107,6 +107,7 @@ public class ThreadGroupGui extends AbstractThreadGroupGui implements ItemListen
         return new ThreadGroup();
     }
 
+    //#region MTRI, this is here!
     @Override
     public void assignDefaultValues(TestElement element) {
         super.assignDefaultValues(element);
@@ -115,6 +116,7 @@ public class ThreadGroupGui extends AbstractThreadGroupGui implements ItemListen
         element.set(AbstractThreadGroupSchema.INSTANCE.getSameUserOnNextIteration(), true);
         ((AbstractThreadGroup) element).setSamplerController((LoopController) loopPanel.createTestElement());
     }
+    //#endregion
 
     /**
      * Modifies a given TestElement to mirror the data in the gui components.

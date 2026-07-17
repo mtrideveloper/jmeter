@@ -361,3 +361,9 @@ BorderLayout.AFTER_LINE_ENDS,After line ends,Cũ
 
 ## 150726
 1. Thay đổi addCSVDataSet từ tạo csv data set config - (https proxies) làm con của 1 sampler sang tạo ở cấp cao nhất (con của Test Plan)
+
+## 160726
+1. Cập nhật focus đến node chứa nút crape
+2. Thêm MtriCrapeHttpsProxies.updateInputField
+3. Cập nhật số threads = ram-up = aliveProxies tìm thấy
+4. Thêm 1 số debug.log khi 1 có sự thay đổi dữ liệu trong 1 test bean

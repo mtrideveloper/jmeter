@@ -91,7 +91,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
  * customizers should implement SharedCustomizer.
  *
  */
-public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUIComponent, LocaleChangeListener{
+public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUIComponent, LocaleChangeListener {
     private static final long serialVersionUID = 242L;
 
     private static final Logger log = LoggerFactory.getLogger(TestBeanGUI.class);
@@ -112,11 +112,11 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
      * needs to be limited, though, to avoid memory issues when editing very
      * large test plans.
      */
-    private final Cache<TestElement, Customizer> customizers =
-            Caffeine.newBuilder()  // TODO: should this be made static?
-                    .weakKeys() // So test elements are compared using identity == rather than .equals
-                    .maximumSize(20)
-                    .build();
+    private final Cache<TestElement, Customizer> customizers = Caffeine.newBuilder() // TODO: should this be made
+                                                                                     // static?
+            .weakKeys() // So test elements are compared using identity == rather than .equals
+            .maximumSize(20)
+            .build();
 
     /** Index of the customizer in the JPanel's child component list: */
     private int customizerIndexInPanel;
@@ -195,7 +195,7 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
      */
     @Override
     public String getStaticLabel() {
-        if (beanInfo == null){
+        if (beanInfo == null) {
             return "null";// $NON-NLS-1$
         }
         return beanInfo.getBeanDescriptor().getDisplayName();
@@ -204,14 +204,17 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
     /**
      * {@inheritDoc}
      */
-   @Override
+    @Override
     public TestElement createTestElement() {
         try {
             TestElement element = (TestElement) testBeanClass.getDeclaredConstructor().newInstance();
-            // In other GUI component, clearGUI resets the value to defaults one as there is one GUI per Element
-            // With TestBeanGUI as it's shared, its default values are only known here, we must call setValues with
+            // In other GUI component, clearGUI resets the value to defaults one as there is
+            // one GUI per Element
+            // With TestBeanGUI as it's shared, its default values are only known here, we
+            // must call setValues with
             // element (as it holds default values)
-            // otherwise we will get values as computed by customizer reset and not default ones
+            // otherwise we will get values as computed by customizer reset and not default
+            // ones
             if (initialized) {
                 setValues(element);
             }
@@ -224,9 +227,9 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
         }
     }
 
-   /**
-    * {@inheritDoc}
-    */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void modifyTestElement(TestElement element) {
         // Fetch data from screen fields
@@ -252,7 +255,8 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
                     element.removeProperty(name);
                 }
             } else {
-                if (GenericTestBeanCustomizer.noSaveDefault(desc) && value.equals(desc.getValue(GenericTestBeanCustomizer.DEFAULT))) {
+                if (GenericTestBeanCustomizer.noSaveDefault(desc)
+                        && value.equals(desc.getValue(GenericTestBeanCustomizer.DEFAULT))) {
                     log.debug("Did not set {} to the default: {}", name, value);
                     element.removeProperty(name);
                 } else {
@@ -303,8 +307,8 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
      */
     @Override
     public void configure(TestElement element) {
-        //#region MTRI WAS HERE!
-        if (!initialized){
+        // #region MTRI WAS HERE!
+        if (!initialized) {
             init();
             // It populates GUI_CLASS bean property which is used for icon display
             setupGuiClassesList();
@@ -317,6 +321,7 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
 
     /**
      * Get values from element to fill propertyMap and setup customizer
+     * 
      * @param element TestElement
      */
     private void setValues(TestElement element) {
@@ -329,7 +334,7 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
         if (customizer != null) {
             customizer.setObject(propertyMap);
         } else {
-            if (initialized){
+            if (initialized) {
                 remove(customizerIndexInPanel);
             }
             Customizer c = customizers.get(element, e -> {
@@ -434,7 +439,7 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
             customizer = createCustomizer();
         }
 
-        if (customizer != null){
+        if (customizer != null) {
             add((Component) customizer, BorderLayout.CENTER);
         }
     }
@@ -470,6 +475,7 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
 
     /**
      * Handle Locale Change by reloading BeanInfo
+     * 
      * @param event {@link LocaleChangeEvent}
      */
     @Override
@@ -485,13 +491,14 @@ public class TestBeanGUI extends AbstractJMeterGuiComponent implements JMeterGUI
 
     /**
      * {@inheritDoc}}
+     * 
      * @see org.apache.jmeter.gui.AbstractJMeterGuiComponent#getDocAnchor()
      */
     @Override
     public String getDocAnchor() {
         ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                testBeanClass.getName() + "Resources",  // $NON-NLS-1$
-                new Locale("",""));
+                testBeanClass.getName() + "Resources", // $NON-NLS-1$
+                new Locale("", ""));
 
         String name = resourceBundle.getString("displayName");
         return name.replace(' ', '_');

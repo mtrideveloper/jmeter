@@ -26,9 +26,9 @@ import java.beans.PropertyEditorSupport;
 
 import javax.swing.JTextField;
 
-
 /**
- * This class implements a property editor for possible null String properties that
+ * This class implements a property editor for possible null String properties
+ * that
  * supports custom editing (i.e.: provides a GUI component) based on a text
  * field.
  * <p>
@@ -79,6 +79,9 @@ class FieldStringEditor extends PropertyEditorSupport implements ActionListener,
     public void setValue(Object value) {
         if (value instanceof String string) {
             setAsText(string);
+            // #region MTRI was here!
+            System.out.println("FieldStringEditor.setValue: " + string);
+            // #endregion
         } else if (value == null) {
             setAsText(null);
         } else {
